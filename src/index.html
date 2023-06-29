@@ -1,0 +1,309 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="height=device-height,width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no">
+
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>📡</text></svg>">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=M+PLUS+1+Code:wght@100;200;300;400;500;600;700">
+
+<script type="importmap">
+    {
+        "imports": {
+            "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js"
+        }
+    }
+</script>
+
+<script async type="module">
+    import {createApp, defineComponent, ref, reactive, inject, onMounted} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
+    import {createVuetify} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
+
+    import {fetchExtend} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
+
+    async function fetchDeploy(path, option){
+        return await fetchExtend(`https://openai-api-example.deno.dev${path}`, "json", {
+            ...option,
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    }
+
+    const sfc_layout_header = defineComponent({
+        template: /*html*/`
+            <v-app-bar density="compact" color="secondary">
+                <v-spacer></v-spacer>
+                <v-app-bar-title class="ml-0 text-center">OpenAI API Example</v-app-bar-title>
+                <v-spacer></v-spacer>
+            </v-app-bar>
+        `
+    });
+
+    const sfc_layout_footer = defineComponent({
+        template: /*html*/`
+            <v-footer app class="px-3" color="grey-lighten-3">
+                <v-btn-toggle mandatory density="comfortable" color="primary" v-model="type">
+                    <v-btn icon="mdi-message-text-outline" value="chat"></v-btn>
+                    <v-btn icon="mdi-image-outline" value="image"></v-btn>
+                </v-btn-toggle>
+
+                <v-text-field hide-details single-line clearable density="compact" variant="solo" label="テキストを入力 (Alt+Enterで送信)" class="mx-3" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-text-field>
+
+                <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
+            </v-footer>
+        `,
+        setup(){
+            const loading = inject("xg-loading");
+            const notifies = inject("xg-notifies");
+            const threads = inject("xg-threads");
+
+            const input = ref("");
+            const type = ref("chat");
+
+            async function requestApi(){
+                const inputValue = input.value;
+
+                if(!inputValue){
+                    return;
+                }
+
+                threads.push({
+                    own: true,
+                    type: "text",
+                    content: inputValue
+                });
+
+                input.value = "";
+
+                try{
+                    switch(type.value){
+                        case "chat": {
+                            const result = await fetchDeploy("/chat", {
+                                method: "POST",
+                                body: JSON.stringify([{
+                                    role: "user",
+                                    content: inputValue
+                                }])
+                            });
+
+                            threads.push({
+                                own: false,
+                                type: "text",
+                                content: result[0].message.content
+                                // content: inputValue
+                            });
+                        } break;
+
+                        case "image": {
+                            const result = await fetchDeploy("/image", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    prompt: inputValue,
+                                    size: "512x512",
+                                    n: 1
+                                })
+                            });
+
+                            threads.push({
+                                own: false,
+                                type: "picture",
+                                content: `data:image/png;base64,${result[0].b64_json}`
+                            });
+                        } break;
+
+                        default: break;
+                    }
+                }
+                catch(e){
+                    console.error(e);
+
+                    notifies.push({
+                        color: "error",
+                        message: "通信に失敗しました"
+                    });
+                }
+            }
+
+            return {input, type, requestApi};
+        }
+    });
+
+    const sfc_layout_loading = defineComponent({
+        template: /*html*/`
+            <v-overlay persistent no-click-animation z-index="3000" class="justify-center align-center" v-model="loading">
+                <v-progress-circular indeterminate size="60" width="4" color="primary"></v-progress-circular>
+            </v-overlay>
+        `,
+        setup(){
+            const loading = inject("xg-loading");
+
+            return {loading};
+        }
+    });
+
+    const sfc_layout_notify = defineComponent({
+        template: /*html*/`
+            <v-snackbar v-for="notify in notifies" model-value position="fixed" location="top" z-index="2100" :color="notify.color" timeout="-1" v-bind="notifyTimeout(notify, 5000)">
+                <span>{{notify.message}}</span>
+
+                <template #actions>
+                    <v-btn ripple density="comfortable" icon="mdi-close" @click="notifyTimeout(notify, 0)"></v-btn>
+                </template>
+            </v-snackbar>
+        `,
+        setup(){
+            const notifies = inject("xg-notifies");
+
+            async function notifyTimeout(notify, ms){
+                await new Promise(done => setTimeout(done, ms));
+
+                const i = notifies.findIndex(v => v === notify);
+
+                if(i === -1){
+                    return;
+                }
+
+                notifies.splice(i, 1);
+            }
+
+            return {notifies, notifyTimeout};
+        }
+    });
+
+    const sfc_page = defineComponent({
+        template: /*html*/`
+            <v-container>
+                <v-list>
+                    <v-list-item v-for="thread in threads" class="mb-8">
+                        <template v-if="!thread.own" #prepend>
+                            <v-avatar color="grey-lighten-1">
+                                <v-icon color="white">mdi-account</v-icon>
+                            </v-avatar>
+                        </template>
+
+                        <div class="d-flex" :style="thread.own ? 'margin-left:40%' : 'margin-right:40%'" :class="thread.own ? 'justify-end' : 'justify-start'">
+                            <span v-if="thread.type === 'text'">{{thread.content}}</span>
+                            <img v-else-if="thread.type === 'picture'" :src="thread.content" style="width: 100%;">
+                        </div>
+
+                        <template v-if="thread.own" #append>
+                            <v-avatar color="grey-lighten-1">
+                                <v-icon color="white">mdi-account</v-icon>
+                            </v-avatar>
+                        </template>
+                    </v-list-item>
+                </v-list>
+            </v-container>
+        `,
+        setup(){
+            const threads = inject("xg-threads");
+
+            return {threads};
+        }
+    });
+
+    const sfc_main = defineComponent({
+        template: /*html*/`
+            <v-app>
+                <x-loading></x-loading>
+                <x-notify></x-notify>
+
+                <x-header></x-header>
+
+                <v-main>
+                    <x-page></x-page>
+                </v-main>
+
+                <x-footer></x-footer>
+            </v-app>
+        `,
+        components: {
+            "x-header": sfc_layout_header,
+            "x-footer": sfc_layout_footer,
+            "x-loading": sfc_layout_loading,
+            "x-notify": sfc_layout_notify,
+            "x-page": sfc_page
+        },
+        setup(){
+            const loading = inject("xg-loading");
+
+            onMounted(()=>{
+                loading.value = false;
+            });
+
+            return {};
+        }
+    });
+
+    const vuetify = createVuetify({
+        theme: {
+            defaultTheme: "main-light",
+            themes: {
+                "main-light": {
+                    dark: false,
+                    colors: {
+                        primary: "#03A9F4",
+                        secondary: "#9C27B0",
+                        surface: "#FFFFFF",
+                        background: "#FFFFFF",
+                        info: "#2196F3",
+                        success: "#4CAF50",
+                        warning: "#FFC107",
+                        error: "#FF5252"
+                    }
+                }
+            }
+        }
+    });
+
+    const provide = ((arg)=>{
+        return {
+            install(context){
+                for(const [k, v] of Object.entries(arg)){
+                    context.provide(k, v);
+                }
+            }
+        };
+    })({
+        "xg-loading": ref(false),
+        "xg-notifies": reactive([]),
+        "xg-threads": reactive([])
+    });
+
+    const vue = createApp(sfc_main);
+
+    vue.use(vuetify);
+    vue.use(provide);
+
+    vue.mount("#vue");
+</script>
+
+<style>
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    :focus {
+        outline: none !important;
+    }
+
+    * {
+        font-family: "M PLUS 1 Code" !important;
+    }
+
+    .v-btn {
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        text-indent: 0 !important;
+    }
+</style>
+
+<title>OpenAI API Example</title>
+
+<div id="vue"></div>
