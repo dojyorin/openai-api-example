@@ -1,12 +1,15 @@
+import {requestJson} from "../mids/request.ts";
+import {responseCode, responseJson} from "../mids/response.ts";
+
 export async function route(request:Request){
-    if(!isPost){
-        return responseEnd(405);
+    if(request.method !== "POST"){
+        return responseCode(405);
     }
 
-    const input = await _json<ChatQuery["messages"]>();
+    const input = await requestJson<ChatQuery["messages"]>();
 
-    if(!input.length || input.some(({role, content}) => !role || !content)){
-        return responseEnd(400);
+    if(!input?.length || input.some(({role, content}) => !role || !content)){
+        return responseCode(400);
     }
 
     const messages = input.map(({role, content}) => ({role, content}));
@@ -19,5 +22,5 @@ export async function route(request:Request){
         })
     });
 
-    return responseEnd(result.choices);
+    return responseJson(result.choices);
 }
