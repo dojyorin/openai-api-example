@@ -1,6 +1,7 @@
 import {isPost} from "../mids/method.ts";
 import {requestJson} from "../mids/request.ts";
 import {responseCode, responseJson} from "../mids/response.ts";
+import {openai} from "../instances/openai.ts";
 
 export async function route(request:Request){
     if(!isPost(request)){
@@ -15,13 +16,7 @@ export async function route(request:Request){
 
     const messages = input.map(({role, content}) => ({role, content}));
 
-    const result = await fetchApi<ChatResult>("/chat/completions", {
-        method: "POST",
-        body: JSON.stringify(<ChatQuery>{
-            model: "gpt-3.5-turbo",
-            messages
-        })
-    });
+    const result = await openai.imageGeneration({});
 
     return responseJson(result.choices);
 }
