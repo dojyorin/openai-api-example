@@ -10,18 +10,18 @@ function factoryResponse(code:number, body?:BodyInit, type?:string){
     });
 }
 
-function responseCode(code:number){
+export function responseCode(code:number){
     return factoryResponse(code);
 }
 
-function responseText(body:string){
+export function responseText(body:string){
     return factoryResponse(200, body, "text/plain");
 }
 
-function responseHtml(body:string){
+export function responseHtml(body:string){
     return factoryResponse(200, body, "text/html");
 }
 
-function responseJson<T extends Record<keyof T, unknown>>(body:T){
+export function responseJson<T extends Record<keyof T, unknown>>(body:T){
     return factoryResponse(200, JSON.stringify(body), "application/json");
 }

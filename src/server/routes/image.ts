@@ -1,12 +1,13 @@
+import {isPost} from "../mids/method.ts";
 import {requestJson} from "../mids/request.ts";
 import {responseCode, responseJson} from "../mids/response.ts";
 
 export async function route(request:Request){
-    if(request.method !== "POST"){
+    if(!isPost(request)){
         return responseCode(405);
     }
 
-    const input = await requestJson<ChatQuery["messages"]>();
+    const input = await requestJson<ChatQuery["messages"]>(request);
 
     if(!input.length || input.some(({role, content}) => !role || !content)){
         return responseCode(400);

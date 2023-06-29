@@ -1,7 +1,8 @@
+import {isGet} from "../mids/method.ts";
 import {responseCode, responseJson} from "../mids/response.ts";
 
 export async function route(request:Request){
-    if(request.method !== "GET"){
+    if(!isGet(request)){
         return responseCode(405);
     }
 
