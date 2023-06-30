@@ -26,7 +26,7 @@
 
     import {fetchExtend, base64Encode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
 
-    async function fetchApi(path, type, body){
+    async function fetchAPI(path, type, body){
         return await fetchExtend(path, type, {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
@@ -47,6 +47,12 @@
             type: type,
             value: value
         };
+    }
+
+    function blobURL(data, mime){
+        return URL.createObjectURL(new Blob([data], {
+            type: mime
+        }));
     }
 
     const sfc_layout_header = defineComponent({
@@ -94,7 +100,7 @@
                 try{
                     switch(type.value){
                         case "chat": {
-                            const result = await fetchApi("/chat", "text", {
+                            const result = await fetchAPI("/chat", "text", {
                                 query: inputValue
                             });
 
@@ -102,11 +108,11 @@
                         } break;
 
                         case "image": {
-                            const result = await fetchApi("/image", "blob", {
+                            const result = await fetchAPI("/image", "byte", {
                                 query: inputValue
                             });
 
-                            threads.push(displayContent(false, "picture", URL.createObjectURL(result)));
+                            threads.push(displayContent(false, "picture", blobURL(result, "image/png")));
                         } break;
 
                         default: break;
