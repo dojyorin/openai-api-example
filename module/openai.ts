@@ -1,3 +1,4 @@
+import type {} from "./api.d.ts";
 import {type FetchInit, fetchExtend} from "../deps.ts";
 
 export class OpenAI{
@@ -16,20 +17,26 @@ export class OpenAI{
             body: body && JSON.stringify(body),
             headers: {
                 "Authorization": `Bearer ${this.#key}`,
-                "Content-Type": "application/json"
+                ...body && {
+                    "Content-Type": "application/json"
+                }
             }
         });
     }
 
     async nativeChatCompletions(option){
-        await this.#fetch("/chat/completions", option);
+        return await this.#fetch("/chat/completions", option);
     }
 
     async nativeImageGenerations(option){
-        await this.#fetch("/image/generations", option);
+        return await this.#fetch("/image/generations", option);
     }
 
     async nativeModels(){
-        await this.#fetch("/models");
+        return await this.#fetch("/models");
+    }
+
+    async chatMessages(){
+        const result = await this.nativeChatCompletions({});
     }
 }
