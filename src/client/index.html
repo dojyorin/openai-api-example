@@ -179,13 +179,7 @@
             <v-container>
                 <v-list>
                     <v-list-item v-for="{time, own, type, value} in threads" class="mb-8">
-                        <template v-if="!own" #prepend>
-                            <v-avatar color="grey">
-                                <v-icon color="white">mdi-account</v-icon>
-                            </v-avatar>
-                        </template>
-
-                        <v-sheet class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
+                        <div class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
                             <v-card v-if="own" flat class="d-flex align-end w-100">
                                 <v-card-text class="px-2 py-0">{{time}}</v-card-text>
                             </v-card>
@@ -198,13 +192,7 @@
                             <v-card v-if="!own" flat class="d-flex align-end w-100">
                                 <v-card-text class="px-2 py-0">{{time}}</v-card-text>
                             </v-card>
-                        </v-sheet>
-
-                        <template v-if="own" #append>
-                            <v-avatar color="grey">
-                                <v-icon color="white">mdi-account</v-icon>
-                            </v-avatar>
-                        </template>
+                        </div>
                     </v-list-item>
                 </v-list>
             </v-container>
