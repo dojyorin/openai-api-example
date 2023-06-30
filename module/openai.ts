@@ -21,22 +21,15 @@ export class OpenAI{
         });
     }
 
-    async chatCompletion(){
-        await this.#fetch("/chat/completions", {
-            model: "gpt-3.5-turbo",
-            messages
-        });
+    async nativeChatCompletions(option){
+        await this.#fetch("/chat/completions", option);
     }
 
-    async imageGeneration(){
-        await this.#fetch("", {
-            response_format: "b64_json",
-            prompt,
-            n
-        });
+    async nativeImageGenerations(option){
+        await this.#fetch("/image/generations", option);
     }
 
-    async listModel(){
+    async nativeModels(){
         await this.#fetch("/models");
     }
 }
