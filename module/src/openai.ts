@@ -83,7 +83,7 @@ export class OpenAI{
             response_format: "b64_json",
             n: 1
         });
-console.log(result)
+
         return base64Decode(result.data[0].b64_json);
     }
 
