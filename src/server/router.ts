@@ -1,3 +1,4 @@
+import {responseCode} from "./mids/response.ts";
 import {route as route_index} from "./routes/index.ts";
 import {route as route_chat} from "./routes/chat.ts";
 import {route as route_image} from "./routes/image.ts";
@@ -9,6 +10,6 @@ export async function router(request:Request){
         case "/chat": return await route_chat(request);
         case "/image": return await route_image(request);
         case "/model": return await route_model(request);
-        default: return responseEnd(404);
+        default: return responseCode(404);
     }
 }
