@@ -1,4 +1,5 @@
 import type {
+    ChatCompletionMessage,
     ChatCompletionRequest,
     ChatCompletionResponse,
     ImageGenerationRequest,
@@ -46,19 +47,29 @@ export class OpenAI{
         return await this.#fetch(model ? `/models/${model}` : "/models");
     }
 
-    async simpleChatCompletion(query:string, bg?:string):Promise<string>{
+    async simpleChatCompletion(query:string, history?:string, background?:string):Promise<string>{
+        const params:ChatCompletionMessage[] = [{
+            role: "user",
+            content: query
+        }];
+
+        if(history){
+            params.push({
+                role: "assistant",
+                content: history
+            });
+        }
+
+        if(background){
+            params.push({
+                role: "system",
+                content: background
+            });
+        }
+
         const result = await this.nativeChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: bg ? [{
-                role: "user",
-                content: query
-            }, {
-                role: "system",
-                content: bg
-            }] : [{
-                role: "user",
-                content: query
-            }],
+            messages: params,
             n: 1
         });
 

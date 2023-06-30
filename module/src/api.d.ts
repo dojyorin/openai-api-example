@@ -7,7 +7,7 @@ interface ResponseCreated{
     created: number;
 }
 
-interface ChatCompletionMessage{
+export interface ChatCompletionMessage{
     role: "system" | "user" | "assistant";
     content: string;
 }
