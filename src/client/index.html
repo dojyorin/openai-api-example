@@ -24,15 +24,35 @@
     import {createApp, defineComponent, ref, reactive, inject, onMounted} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
     import {createVuetify} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
 
-    import {fetchExtend} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
+    import {fetchExtend, base64Encode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
 
-    async function fetchDeploy(path, option){
-        return await fetchExtend(`https://openai-api-example.deno.dev${path}`, "json", {
-            ...option,
+    async function fetchAPI(path, type, body){
+        return await fetchExtend(path, type, {
+            method: body ? "POST" : "GET",
+            body: body && JSON.stringify(body),
             headers: {
-                "Content-Type": "application/json"
+                ...body && {
+                    "Content-Type": "application/json"
+                }
             }
         });
+    }
+
+    function displayContent(own, type, value){
+        const [h, m] = new Date().toLocaleTimeString().split(/:/);
+
+        return {
+            time: `${h}:${m}`,
+            own: own,
+            type: type,
+            value: value
+        };
+    }
+
+    function blobURL(data, mime){
+        return URL.createObjectURL(new Blob([data], {
+            type: mime
+        }));
     }
 
     const sfc_layout_header = defineComponent({
@@ -53,7 +73,7 @@
                     <v-btn icon="mdi-image-outline" value="image"></v-btn>
                 </v-btn-toggle>
 
-                <v-text-field hide-details single-line clearable density="compact" variant="solo" label="テキストを入力 (Alt+Enterで送信)" class="mx-3" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-text-field>
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="テキストを入力 (Alt+Enterで送信)" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-textarea>
 
                 <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
             </v-footer>
@@ -73,48 +93,26 @@
                     return;
                 }
 
-                threads.push({
-                    own: true,
-                    type: "text",
-                    content: inputValue
-                });
+                threads.push(displayContent(true, "text", inputValue));
 
                 input.value = "";
 
                 try{
                     switch(type.value){
                         case "chat": {
-                            const result = await fetchDeploy("/chat", {
-                                method: "POST",
-                                body: JSON.stringify([{
-                                    role: "user",
-                                    content: inputValue
-                                }])
+                            const result = await fetchAPI("/chat", "text", {
+                                query: inputValue
                             });
 
-                            threads.push({
-                                own: false,
-                                type: "text",
-                                content: result[0].message.content
-                                // content: inputValue
-                            });
+                            threads.push(displayContent(false, "text", result));
                         } break;
 
                         case "image": {
-                            const result = await fetchDeploy("/image", {
-                                method: "POST",
-                                body: JSON.stringify({
-                                    prompt: inputValue,
-                                    size: "512x512",
-                                    n: 1
-                                })
+                            const result = await fetchAPI("/image", "byte", {
+                                query: inputValue
                             });
 
-                            threads.push({
-                                own: false,
-                                type: "picture",
-                                content: `data:image/png;base64,${result[0].b64_json}`
-                            });
+                            threads.push(displayContent(false, "picture", blobURL(result, "image/png")));
                         } break;
 
                         default: break;
@@ -180,20 +178,30 @@
         template: /*html*/`
             <v-container>
                 <v-list>
-                    <v-list-item v-for="thread in threads" class="mb-8">
-                        <template v-if="!thread.own" #prepend>
-                            <v-avatar color="grey-lighten-1">
+                    <v-list-item v-for="{time, own, type, value} in threads" class="mb-8">
+                        <template v-if="!own" #prepend>
+                            <v-avatar color="grey">
                                 <v-icon color="white">mdi-account</v-icon>
                             </v-avatar>
                         </template>
 
-                        <div class="d-flex" :style="thread.own ? 'margin-left:40%' : 'margin-right:40%'" :class="thread.own ? 'justify-end' : 'justify-start'">
-                            <span v-if="thread.type === 'text'">{{thread.content}}</span>
-                            <img v-else-if="thread.type === 'picture'" :src="thread.content" style="width: 100%;">
-                        </div>
+                        <v-sheet class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
+                            <v-card v-if="own" flat class="d-flex align-end w-100">
+                                <v-card-text class="px-2 py-0">{{time}}</v-card-text>
+                            </v-card>
 
-                        <template v-if="thread.own" #append>
-                            <v-avatar color="grey-lighten-1">
+                            <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
+                                <v-card-text v-if="type === 'text'" class="text-body-1 text-pre-wrap">{{value}}</v-card-text>
+                                <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
+                            </v-card>
+
+                            <v-card v-if="!own" flat class="d-flex align-end w-100">
+                                <v-card-text class="px-2 py-0">{{time}}</v-card-text>
+                            </v-card>
+                        </v-sheet>
+
+                        <template v-if="own" #append>
+                            <v-avatar color="grey">
                                 <v-icon color="white">mdi-account</v-icon>
                             </v-avatar>
                         </template>

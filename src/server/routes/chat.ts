@@ -5,7 +5,8 @@ import {openai} from "../global/openai.ts";
 
 interface FormInput{
     query: string;
-    bg: string;
+    history: string;
+    background: string;
 }
 
 export async function route(request:Request){
@@ -19,7 +20,7 @@ export async function route(request:Request){
         return responseCode(400);
     }
 
-    const result = await openai.simpleChatCompletion(input.query, input.bg);
+    const result = await openai.simpleChatCompletion(input.query, input.history, input.background);
 
     return responseText(result);
 }
