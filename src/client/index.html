@@ -186,7 +186,7 @@
                         </template>
 
                         <v-sheet class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
-                            <v-card v-if="own" flat class="d-flex align-end">
+                            <v-card v-if="own" flat class="d-flex align-end w-100">
                                 <v-card-text class="px-2 py-0">{{time}}</v-card-text>
                             </v-card>
 
@@ -195,7 +195,7 @@
                                 <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
                             </v-card>
 
-                            <v-card v-if="!own" flat class="d-flex align-end">
+                            <v-card v-if="!own" flat class="d-flex align-end w-100">
                                 <v-card-text class="px-2 py-0">{{time}}</v-card-text>
                             </v-card>
                         </v-sheet>
