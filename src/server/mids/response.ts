@@ -3,6 +3,7 @@ function factoryResponse(code:number, body?:BodyInit, type?:string){
         status: code,
         headers: {
             "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
             ...type && {
                 "Content-Type": type
             }
