@@ -1,31 +1,33 @@
-export interface ChatQuery{
+interface ModelId{
+    id: string;
+    object: string;
+}
+
+interface ResponseCreated{
+    created: number;
+}
+
+export interface ChatCompletionMessage{
+    role: "system" | "user" | "assistant";
+    content: string;
+}
+
+export interface ChatCompletionRequest{
     model: string;
-    messages: {
-        role: "system" | "user" | "assistant" | "function";
-        name?: string;
-        content?: string;
-    }[];
+    messages: ChatCompletionMessage[];
     temperature?: number;
     top_p?: number;
     n?: number;
+    stream?: boolean;
+    stop?: string | string[];
     max_tokens?: number;
     presence_penalty?: number;
     frequency_penalty?: number;
+    logit_bias?: Record<string, number>;
     user?: string;
 }
 
-export interface ImageQuery{
-    prompt: string;
-    response_format?: "b64_json" | "url";
-    size?: "256x256" | "512x512" | "1024x1024";
-    n?: number;
-    user?: string;
-}
-
-export interface ChatResult{
-    id: string;
-    object: string;
-    created: number;
+export interface ChatCompletionResponse extends ModelId, ResponseCreated{
     usage: {
         prompt_tokens: number;
         completion_tokens: number;
@@ -33,41 +35,29 @@ export interface ChatResult{
     };
     choices: {
         index: number;
-        message: {
-            role: string;
-            content: string;
-        };
         finish_reason: string;
+        message: ChatCompletionMessage;
     }[];
 }
 
-export interface ImageResult{
-    created: number;
-    data: {
-        url: string;
-        b64_json: string;
-    }[];
+export interface ImageGenerationRequest{
+    prompt: string;
+    response_format: "b64_json" | "url";
+    size: "256x256" | "512x512" | "1024x1024";
+    n?: number;
+    user?: string;
 }
 
-export interface ModelResult{
+export interface ImageGenerationResponse extends ResponseCreated{
+    data: Record<ImageGenerationRequest["response_format"], string>[];
+}
+
+export interface ModelResponse extends ModelId{
+    owned_by: string;
+    permission: (ResponseCreated & ModelId & Record<`allow_${string}`, boolean>)[];
+}
+
+export interface ModelListResponse{
     object: string;
-    data: {
-        id: string;
-        object: string;
-        owned_by: string;
-        permission: {
-            id: string;
-            object: string;
-            created: number;
-            allow_create_engine: boolean;
-            allow_sampling: boolean;
-            allow_logprobs: boolean;
-            allow_search_indices: boolean;
-            allow_view: boolean;
-            allow_fine_tuning: boolean;
-            organization: string;
-            group: string | null;
-            is_blocking: boolean;
-        }[];
-    }[];
+    data: ModelResponse[];
 }

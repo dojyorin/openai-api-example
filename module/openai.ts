@@ -1,5 +1,16 @@
-import type {} from "./api.d.ts";
-import {type FetchInit, fetchExtend} from "../deps.ts";
+import type {
+    ChatCompletionMessage,
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ImageGenerationRequest,
+    ImageGenerationResponse,
+    ModelResponse,
+    ModelListResponse
+} from "./api.d.ts";
+
+import {fetchExtend, base64Decode} from "./deps.ts";
+
+type IRecord<T> = Record<keyof T, unknown>;
 
 export class OpenAI{
     static #origin = "https://api.openai.com";
@@ -11,8 +22,8 @@ export class OpenAI{
         this.#key = key;
     }
 
-    async #fetch<T extends Record<keyof T, unknown>, U extends Record<keyof U, unknown>>(path:string, body?:U){
-        return <T>await fetchExtend(`${OpenAI.#origin}/${OpenAI.#version}/${path}`, "json", {
+    async #fetch<T extends Partial<IRecord<T>>, U extends IRecord<U>>(path:string, body?:T){
+        return <U>await fetchExtend(`${OpenAI.#origin}/${OpenAI.#version}/${path}`, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
             headers: {
@@ -24,19 +35,38 @@ export class OpenAI{
         });
     }
 
-    async nativeChatCompletions(option){
+    async nativeChatCompletion(option:ChatCompletionRequest):Promise<ChatCompletionResponse>{
         return await this.#fetch("/chat/completions", option);
     }
 
-    async nativeImageGenerations(option){
+    async nativeImageGeneration(option:ImageGenerationRequest):Promise<ImageGenerationResponse>{
         return await this.#fetch("/image/generations", option);
     }
 
-    async nativeModels(){
-        return await this.#fetch("/models");
+    async nativeModel():Promise<ModelListResponse>;
+    async nativeModel(model:string):Promise<ModelResponse>;
+    async nativeModel(model?:string):Promise<ModelListResponse | ModelResponse>{
+        return await this.#fetch(model ? `/models/${model}` : "/models");
     }
 
-    async chatMessages(){
-        const result = await this.nativeChatCompletions({});
+    async simpleChatCompletion(message:ChatCompletionMessage):Promise<ChatCompletionMessage>{
+        const result = await this.nativeChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [message],
+            n: 1
+        });
+
+        return result.choices[0].message;
+    }
+
+    async simpleImageGeneration(query:string, size?:ImageGenerationRequest["size"]):Promise<Uint8Array>{
+        const result = await this.nativeImageGeneration({
+            prompt: query,
+            size: size ?? "512x512",
+            response_format: "b64_json",
+            n: 1
+        });
+
+        return base64Decode(result.data[0].b64_json);
     }
 }
