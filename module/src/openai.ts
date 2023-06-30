@@ -38,7 +38,7 @@ export class OpenAI{
     }
 
     async nativeImageGeneration(option:ImageGenerationRequest):Promise<ImageGenerationResponse>{
-        return await this.#fetch("/image/generations", option);
+        return await this.#fetch("/images/generations", option);
     }
 
     async nativeModel():Promise<ModelListResponse>;
@@ -83,7 +83,7 @@ export class OpenAI{
             response_format: "b64_json",
             n: 1
         });
-
+console.log(result)
         return base64Decode(result.data[0].b64_json);
     }
 
