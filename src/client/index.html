@@ -71,7 +71,7 @@
                     <v-btn icon="mdi-image-outline" value="image"></v-btn>
                 </v-btn-toggle>
 
-                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="テキストを入力 (Alt+Enterで送信)" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-textarea>
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="プロンプトを送信" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-textarea>
 
                 <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
             </v-footer>
