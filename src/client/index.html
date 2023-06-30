@@ -102,11 +102,11 @@
                         } break;
 
                         case "image": {
-                            const result = await fetchApi("/image", "byte", {
+                            const result = await fetchApi("/image", "blob", {
                                 query: inputValue
                             });
 
-                            threads.push(displayContent(false, "picture", `data:image/png;base64,${base64Encode(result)}`));
+                            threads.push(displayContent(false, "picture", URL.createObjectURL(result)));
                         } break;
 
                         default: break;
