@@ -10,8 +10,6 @@ import type {
 
 import {fetchExtend, base64Decode} from "./deps.ts";
 
-type IRecord<T> = Record<keyof T, unknown>;
-
 export class OpenAI{
     static #origin = "https://api.openai.com";
     static #version = "v1";
@@ -22,7 +20,7 @@ export class OpenAI{
         this.#key = key;
     }
 
-    async #fetch<T extends Partial<IRecord<T>>, U extends IRecord<U>>(path:string, body?:T){
+    async #fetch<T extends Partial<Record<keyof T, unknown>>, U extends Record<keyof U, unknown>>(path:string, body?:T){
         return <U>await fetchExtend(`${OpenAI.#origin}/${OpenAI.#version}/${path}`, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
@@ -49,10 +47,19 @@ export class OpenAI{
         return await this.#fetch(model ? `/models/${model}` : "/models");
     }
 
-    async simpleChatCompletion(message:ChatCompletionMessage):Promise<ChatCompletionMessage>{
+    async simpleChatCompletion(query:string, bg?:string):Promise<ChatCompletionMessage>{
         const result = await this.nativeChatCompletion({
             model: "gpt-3.5-turbo",
-            messages: [message],
+            messages: bg ? [{
+                role: "user",
+                content: query
+            }, {
+                role: "system",
+                content: bg
+            }] : [{
+                role: "user",
+                content: query
+            }],
             n: 1
         });
 
@@ -68,5 +75,11 @@ export class OpenAI{
         });
 
         return base64Decode(result.data[0].b64_json);
+    }
+
+    async simpleModel():Promise<string[]>{
+        const result = await this.nativeModel();
+
+        return result.data.map(({id}) => id);
     }
 }
