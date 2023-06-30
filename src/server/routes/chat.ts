@@ -1,22 +1,25 @@
 import {isPost} from "../mids/method.ts";
 import {requestJson} from "../mids/request.ts";
-import {responseCode, responseJson} from "../mids/response.ts";
-import {openai} from "../instances/openai.ts";
+import {responseCode, responseText} from "../mids/response.ts";
+import {openai} from "../global/openai.ts";
+
+interface FormInput{
+    query: string;
+    bg: string;
+}
 
 export async function route(request:Request){
     if(!isPost(request)){
         return responseCode(405);
     }
 
-    const input = await requestJson<ChatQuery["messages"]>(request);
+    const input = await requestJson<FormInput>(request);
 
-    if(!input?.length || input.some(({role, content}) => !role || !content)){
+    if(!input?.query){
         return responseCode(400);
     }
 
-    const messages = input.map(({role, content}) => ({role, content}));
+    const result = await openai.simpleChatCompletion(input.query, input.bg);
 
-    const result = await openai.chatCompletion({});
-
-    return responseJson(result.choices);
+    return responseText(result);
 }

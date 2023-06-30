@@ -1,5 +1,4 @@
 import type {
-    ChatCompletionMessage,
     ChatCompletionRequest,
     ChatCompletionResponse,
     ImageGenerationRequest,
@@ -8,7 +7,7 @@ import type {
     ModelListResponse
 } from "./api.d.ts";
 
-import {fetchExtend, base64Decode} from "./deps.ts";
+import {fetchExtend, base64Decode} from "../deps.ts";
 
 export class OpenAI{
     static #origin = "https://api.openai.com";
@@ -47,7 +46,7 @@ export class OpenAI{
         return await this.#fetch(model ? `/models/${model}` : "/models");
     }
 
-    async simpleChatCompletion(query:string, bg?:string):Promise<ChatCompletionMessage>{
+    async simpleChatCompletion(query:string, bg?:string):Promise<string>{
         const result = await this.nativeChatCompletion({
             model: "gpt-3.5-turbo",
             messages: bg ? [{
@@ -63,7 +62,7 @@ export class OpenAI{
             n: 1
         });
 
-        return result.choices[0].message;
+        return result.choices[0].message.content;
     }
 
     async simpleImageGeneration(query:string, size?:ImageGenerationRequest["size"]):Promise<Uint8Array>{
