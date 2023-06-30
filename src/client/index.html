@@ -180,8 +180,8 @@
                 <v-list>
                     <v-list-item v-for="{time, own, type, value} in threads" class="mb-8">
                         <div class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
-                            <v-card v-if="own" flat class="d-flex align-end w-100">
-                                <v-card-text class="px-2 py-0">{{time}}</v-card-text>
+                            <v-card v-if="own" flat width="30" class="d-flex align-end">
+                                <v-card-text class="px-2 py-0 text-end">{{time}}</v-card-text>
                             </v-card>
 
                             <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
