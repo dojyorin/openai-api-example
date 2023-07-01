@@ -15,18 +15,10 @@ export function responseCode(code:number){
     return factoryResponse(code);
 }
 
-export function responseText(body:string){
-    return factoryResponse(200, body, "text/plain");
+export function responseJson<T extends Record<keyof T, unknown>>(body:T){
+    return factoryResponse(200, JSON.stringify(body), "application/json");
 }
 
 export function responseHtml(body:string){
     return factoryResponse(200, body, "text/html");
-}
-
-export function responseByte(body:Uint8Array){
-    return factoryResponse(200, body, "application/octet-stream");
-}
-
-export function responseJson<T extends Record<keyof T, unknown>>(body:T){
-    return factoryResponse(200, JSON.stringify(body), "application/json");
 }

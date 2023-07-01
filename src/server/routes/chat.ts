@@ -1,7 +1,6 @@
-import {isPost} from "../mids/method.ts";
-import {requestJson} from "../mids/request.ts";
-import {responseCode, responseText} from "../mids/response.ts";
-import {openai} from "../global/openai.ts";
+import {isPost, requestJson} from "../request.ts";
+import {responseCode, responseJson} from "../response.ts";
+import {openai} from "../global.ts";
 
 interface FormInput{
     query: string;
@@ -22,5 +21,7 @@ export async function route(request:Request){
 
     const result = await openai.simpleChatCompletion(input.query, input.history, input.background);
 
-    return responseText(result);
+    return responseJson({
+        value: result
+    });
 }

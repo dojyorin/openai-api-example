@@ -1,6 +1,6 @@
 import {createServer} from "./deps.ts";
 import {router} from "./src/server/router.ts";
-import {responseCode} from "./src/server/mids/response.ts";
+import {responseCode} from "./src/server/response.ts";
 
 createServer(async(request)=>{
     console.log(request);
