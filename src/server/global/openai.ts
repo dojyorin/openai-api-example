@@ -1,4 +1,4 @@
-import {OpenAI} from "../../../module/mod.ts";
+import {OpenAI} from "../../../module/openai/mod.ts";
 
 const key = Deno.env.get("OPENAI_API_KEY");
 
