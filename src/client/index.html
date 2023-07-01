@@ -82,7 +82,7 @@
                     </v-btn-toggle>
                 </v-expand-x-transition>
 
-                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="プロンプトを送信" @keyup.alt.enter.exact="requestApi()" @focus="focus = true" @blur="focus = false" v-model="input"></v-textarea>
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" @focus="focus = true" @blur="focus = false" v-model="input"></v-textarea>
 
                 <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
             </v-footer>
