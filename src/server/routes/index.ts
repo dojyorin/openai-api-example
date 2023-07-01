@@ -1,5 +1,5 @@
-import {isGet} from "../mids/method.ts";
-import {responseCode, responseHtml} from "../mids/response.ts";
+import {isGet} from "../request.ts";
+import {responseCode, responseHtml} from "../response.ts";
 
 const html = await Deno.readTextFile("./src/client/index.html");
 

@@ -24,10 +24,10 @@
     import {createApp, defineComponent, ref, reactive, inject, onMounted} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
     import {createVuetify} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
 
-    import {fetchExtend, base64Encode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
+    import {fetchExtend, base64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.0.0/mod.universal.ts?bundle&target=esnext";
 
-    async function fetchAPI(path, type, body){
-        return await fetchExtend(path, type, {
+    async function fetchAPI(path, body){
+        return await fetchExtend(path, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
             headers: {
@@ -67,8 +67,17 @@
         template: /*html*/`
             <v-footer app class="px-3" color="grey-lighten-3">
                 <v-btn-toggle mandatory density="comfortable" color="primary" v-model="type">
-                    <v-btn icon="mdi-message-text-outline" value="chat"></v-btn>
-                    <v-btn icon="mdi-image-outline" value="image"></v-btn>
+                    <v-tooltip location="top" text="文章返信モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
+                        </template>
+                    </v-tooltip>
+
+                    <v-tooltip location="top" text="画像返信モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-image-outline" value="image"></v-btn>
+                        </template>
+                    </v-tooltip>
                 </v-btn-toggle>
 
                 <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="プロンプトを送信" @keyup.alt.enter.exact="requestApi()" v-model="input"></v-textarea>
@@ -98,19 +107,19 @@
                 try{
                     switch(type.value){
                         case "chat": {
-                            const result = await fetchAPI("/chat", "text", {
+                            const {value} = await fetchAPI("/chat", {
                                 query: inputValue
                             });
 
-                            threads.push(displayContent(false, "text", result));
+                            threads.push(displayContent(false, "text", value));
                         } break;
 
                         case "image": {
-                            const result = await fetchAPI("/image", "byte", {
+                            const {value} = await fetchAPI("/image", {
                                 query: inputValue
                             });
 
-                            threads.push(displayContent(false, "picture", blobURL(result, "image/png")));
+                            threads.push(displayContent(false, "picture", blobURL(base64Decode(value), "image/png")));
                         } break;
 
                         default: break;
@@ -175,21 +184,19 @@
     const sfc_page = defineComponent({
         template: /*html*/`
             <v-container>
-                <v-list>
-                    <v-list-item v-for="{time, own, type, value} in threads" class="mb-8">
-                        <div class="d-flex" :style="own ? 'margin-left:40%' : 'margin-right:40%'" :class="own ? 'justify-end' : 'justify-start'">
-                            <v-card v-if="own" flat width="30" class="d-flex align-end">
-                                <v-card-text class="px-2 py-0 text-end">{{time}}</v-card-text>
-                            </v-card>
+                <v-list class="pa-0">
+                    <v-list-item v-for="{time, own, type, value} in threads" class="mb-6 pa-0">
+                        <div class="d-flex" :class="own ? 'justify-end' : 'justify-start'">
+                            <div style="max-width:70%;">
+                                <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
+                                    <v-card-text v-if="type === 'text'" class="text-body-1 text-pre-wrap">{{value}}</v-card-text>
+                                    <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
+                                </v-card>
 
-                            <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
-                                <v-card-text v-if="type === 'text'" class="text-body-1 text-pre-wrap">{{value}}</v-card-text>
-                                <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
-                            </v-card>
-
-                            <v-card v-if="!own" flat class="d-flex align-end w-100">
-                                <v-card-text class="px-2 py-0">{{time}}</v-card-text>
-                            </v-card>
+                                <v-card flat class="d-flex align-end">
+                                    <v-card-text class="py-0 px-1" :class="own ? 'text-end' : 'text-start'">{{time}}</v-card-text>
+                                </v-card>
+                            </div>
                         </div>
                     </v-list-item>
                 </v-list>

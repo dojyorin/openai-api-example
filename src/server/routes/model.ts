@@ -1,6 +1,6 @@
-import {isGet} from "../mids/method.ts";
-import {responseCode, responseJson} from "../mids/response.ts";
-import {openai} from "../global/openai.ts";
+import {isGet} from "../request.ts";
+import {responseCode, responseJson} from "../response.ts";
+import {openai} from "../global.ts";
 
 export async function route(request:Request){
     if(!isGet(request)){

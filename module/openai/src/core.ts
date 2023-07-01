@@ -8,7 +8,7 @@ import type {
     ModelListResponse
 } from "./api.d.ts";
 
-import {fetchExtend, base64Decode} from "../deps.ts";
+import {fetchExtend} from "../deps.ts";
 
 export class OpenAI{
     static #origin = "https://api.openai.com";
@@ -76,15 +76,15 @@ export class OpenAI{
         return result.choices[0].message.content;
     }
 
-    async simpleImageGeneration(query:string, size?:ImageGenerationRequest["size"]):Promise<Uint8Array>{
+    async simpleImageGeneration(query:string, size?:ImageGenerationRequest["size"]):Promise<string>{
         const result = await this.nativeImageGeneration({
             prompt: query,
-            size: size ?? "512x512",
+            size: size,
             response_format: "b64_json",
             n: 1
         });
 
-        return base64Decode(result.data[0].b64_json);
+        return result.data[0].b64_json;
     }
 
     async simpleModel():Promise<string[]>{

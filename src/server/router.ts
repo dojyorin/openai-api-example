@@ -1,4 +1,4 @@
-import {responseCode} from "./mids/response.ts";
+import {responseCode} from "./response.ts";
 import {route as route_index} from "./routes/index.ts";
 import {route as route_chat} from "./routes/chat.ts";
 import {route as route_image} from "./routes/image.ts";

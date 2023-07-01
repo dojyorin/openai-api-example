@@ -1,7 +1,6 @@
-import {isPost} from "../mids/method.ts";
-import {requestJson} from "../mids/request.ts";
-import {responseCode, responseByte} from "../mids/response.ts";
-import {openai} from "../global/openai.ts";
+import {isPost, requestJson} from "../request.ts";
+import {responseCode, responseJson} from "../response.ts";
+import {openai} from "../global.ts";
 
 interface FormInput{
     query: string;
@@ -27,5 +26,7 @@ export async function route(request:Request){
 
     const result = await openai.simpleImageGeneration(input.query, input.size && pixels[input.size]);
 
-    return responseByte(result);
+    return responseJson({
+        value: result
+    });
 }
