@@ -7,11 +7,16 @@ Example of generative AI service using OpenAI API.
 ```mermaid
 flowchart TD
 
-A(("OpenAI\nJSON API"))
-B(("GitHub\nRepository"))
-C(["Deno Deploy\nopenai-api-example.deno.dev"])
+subgraph "Backend"
+    A(["OpenAI"])
+    B(["GitHub"])
+end
 
-A <--> C
+subgraph "Hosting"
+    C(["Deno Deploy\nopenai-api-example.deno.dev"])
+end
+
+A <--"JSON API"--> C
 B -."Push to Deploy".-> C
 
 C <--> D("Web Client")
