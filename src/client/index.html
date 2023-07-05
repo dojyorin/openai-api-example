@@ -82,7 +82,7 @@
                     </v-btn-toggle>
                 </v-expand-x-transition>
 
-                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" @focus="focus = true" @blur="focus = false" v-model="input"></v-textarea>
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" v-model="input"></v-textarea>
 
                 <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
             </v-footer>
@@ -92,7 +92,6 @@
             const notifies = inject("xg-notifies");
             const threads = inject("xg-threads");
 
-            const focus = ref(false);
             const input = ref("");
             const type = ref("chat");
 
@@ -138,7 +137,7 @@
                 }
             }
 
-            return {focus, input, type, requestApi};
+            return {input, type, requestApi};
         }
     });
 
