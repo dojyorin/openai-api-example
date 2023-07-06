@@ -43,7 +43,7 @@ export interface ChatCompletionResponse extends ModelId, ResponseCreated{
 export interface ImageGenerationRequest{
     prompt: string;
     response_format: "b64_json" | "url";
-    size: "256x256" | "512x512" | "1024x1024";
+    size?: "256x256" | "512x512" | "1024x1024";
     n?: number;
     user?: string;
 }
