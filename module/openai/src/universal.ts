@@ -12,7 +12,7 @@ interface AzureEndpoint{
     deployment: {
         chat?: string;
     };
-    ad?: boolean;
+    aad?: boolean;
 }
 
 export class OpenAI{
@@ -32,7 +32,7 @@ export class OpenAI{
                 "api-version": this.#azure.version
             },
             headers: {
-                ...(!this.#azure || this.#azure.ad) ? {
+                ...(!this.#azure || this.#azure.aad) ? {
                     "Authorization": `Bearer ${this.#key}`
                 } : {
                     "api-key": this.#key
