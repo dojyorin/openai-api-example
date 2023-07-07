@@ -1,2 +1,2 @@
-export * from "./src/core.ts";
-export * from "./src/api.d.ts";
+export * from "./src/openai.ts";
+export * from "./src/azureopenai.ts";

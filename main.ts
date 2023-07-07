@@ -1,13 +1,6 @@
-import {createServer} from "./deps.ts";
-import {router} from "./src/server/router.ts";
-import {responseCode} from "./src/server/response.ts";
+import {oak} from "./src/setup/oak.ts";
 
-createServer(async(request)=>{
-    console.log(request);
-
-    if(request.method === "OPTIONS"){
-        return responseCode(200);
-    }
-
-    return await router(request);
+await oak.listen({
+    hostname: "0.0.0.0",
+    port: 80
 });

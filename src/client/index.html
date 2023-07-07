@@ -109,7 +109,7 @@
                 try{
                     switch(type.value){
                         case "chat": {
-                            const {value} = await fetchAPI("/chat", {
+                            const {value} = await fetchAPI("/api/chat", {
                                 query: inputValue
                             });
 
@@ -117,7 +117,7 @@
                         } break;
 
                         case "image": {
-                            const {value} = await fetchAPI("/image", {
+                            const {value} = await fetchAPI("/api/image", {
                                 query: inputValue
                             });
 
