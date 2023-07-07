@@ -4,34 +4,39 @@ import {
     fetchExtend
 } from "../deps.ts";
 
-type IPartial<T> = Partial<Record<keyof T, unknown>>;
+type Convert<T> = Partial<Record<keyof T, unknown>>;
 
-interface AzureDeployment{
-    chat: string;
+interface AzureEndpoint{
+    resource: string;
+    version: string;
+    deployment: {
+        chat?: string;
+    };
+    ad?: boolean;
 }
 
 export class AzureOpenAI{
-    #key = "";
-    #resource = "";
-    #version = "";
-    #deployment:Partial<AzureDeployment>;
+    #key:string;
+    #azure:AzureEndpoint;
 
-    constructor(key:string, resource:string, version:string, deployment:Partial<AzureDeployment>){
+    constructor(key:string, azure:AzureEndpoint){
         this.#key = key;
-        this.#resource = resource;
-        this.#version = version;
-        this.#deployment = deployment;
+        this.#azure = azure;
     }
 
-    async #fetch<T extends IPartial<T>, U extends IPartial<U>>(path:string, body?:T){
-        return <U>await fetchExtend(`https://${this.#resource}.openai.azure.com/openai/deployments/${path}`, "json", {
+    async #fetch<T extends Convert<T>, U extends Convert<U>>(path:string, body?:T){
+        return <U>await fetchExtend(`https://${this.#azure.resource}.openai.azure.com/openai/deployments/${path}`, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
             query: {
-                "api-version": this.#version
+                "api-version": this.#azure.version
             },
             headers: {
-                "api-key": this.#key,
+                ...this.#azure.ad ? {
+                    "Authorization": `Bearer ${this.#key}`
+                } : {
+                    "api-key": this.#key
+                },
                 ...body && {
                     "Content-Type": "application/json"
                 }
@@ -40,10 +45,10 @@ export class AzureOpenAI{
     }
 
     async createChatCompletion(option:CreateChatCompletionRequest):Promise<CreateChatCompletionResponse>{
-        if(!this.#deployment.chat){
-            throw new Error();
+        if(!this.#azure.deployment.chat){
+            throw new ReferenceError();
         }
 
-        return await this.#fetch(`/${this.#deployment.chat}/chat/completions`, option);
+        return await this.#fetch(`/${this.#azure.deployment.chat}/chat/completions`, option);
     }
 }

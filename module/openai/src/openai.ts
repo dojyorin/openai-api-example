@@ -8,16 +8,16 @@ import {
     fetchExtend
 } from "../deps.ts";
 
-type IPartial<T> = Partial<Record<keyof T, unknown>>;
+type Convert<T> = Partial<Record<keyof T, unknown>>;
 
 export class OpenAI{
-    #key = "";
+    #key:string;
 
     constructor(key:string){
         this.#key = key;
     }
 
-    async #fetch<T extends IPartial<T>, U extends IPartial<U>>(path:string, body?:T){
+    async #fetch<T extends Convert<T>, U extends Convert<U>>(path:string, body?:T){
         return <U>await fetchExtend(`https://api.openai.com/v1/${path}`, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
