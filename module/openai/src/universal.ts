@@ -29,20 +29,41 @@ export class OpenAI{
     }
 
     async #fetch<T extends Opt<T>, U extends Opt<U>>(path:string, body?:T){
-        return <U>await fetchExtend(this.#azure ? `https://${this.#azure.resource}.openai.azure.com/openai/deployments/${path}` : `https://api.openai.com/v1/${path}`, "json", {
+        if(this.#azure){
+            throw new ReferenceError();
+        }
+
+        return <U>await fetchExtend(`https://api.openai.com/v1/${path}`, "json", {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
             headers: {
-                ...(this.#azure && !this.#azure.aad) ? {
-                    "api-key": this.#key
-                } : {
+                "Authorization": `Bearer ${this.#key}`,
+                ...body && {
+                    "Content-Type": "application/json"
+                }
+            }
+        });
+    }
+
+    async #fetchAz<T extends Opt<T>, U extends Opt<U>>(deployment:keyof AzureEndpoint["deployment"], path:string, body?:T){
+        if(!this.#azure || !this.#azure.deployment[deployment]){
+            throw new ReferenceError();
+        }
+
+        return <U>await fetchExtend(`https://${this.#azure.resource}.openai.azure.com/openai/deployments/${this.#azure.deployment[deployment]}/${path}`, "json", {
+            method: body ? "POST" : "GET",
+            body: body && JSON.stringify(body),
+            headers: {
+                ...this.#azure.aad ? {
                     "Authorization": `Bearer ${this.#key}`
+                } : {
+                    "api-key": this.#key
                 },
                 ...body && {
                     "Content-Type": "application/json"
                 }
             },
-            query: this.#azure && {
+            query: {
                 "api-version": this.#azure.version
             }
         });
@@ -54,16 +75,8 @@ export class OpenAI{
         }
     }
 
-    #azureDeployment(deployment:keyof AzureEndpoint["deployment"]){
-        if(this.#azure && !this.#azure.deployment[deployment]){
-            throw new ReferenceError();
-        }
-    }
-
     async createChatCompletion(option:CreateChatCompletionRequest):Promise<CreateChatCompletionResponse>{
-        this.#azureDeployment("chat");
-
-        return await this.#fetch(this.#azure ? `/${this.#azure.deployment.chat}/chat/completions` : "/chat/completions", option);
+        return this.#azure ? await this.#fetchAz("chat", "/chat/completions", option) : await this.#fetch("/chat/completions", option);
     }
 
     async createImage(option:CreateImageRequest):Promise<ImagesResponse>{
