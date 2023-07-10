@@ -69,6 +69,10 @@ export class OpenAI{
         });
     }
 
+    get isAzure(){
+        return !!this.#azure;
+    }
+
     async createChatCompletion(option:CreateChatCompletionRequest):Promise<CreateChatCompletionResponse>{
         return this.#azure ? await this.#fetchAz("chat", "/chat/completions", option) : await this.#fetch("/chat/completions", option);
     }
