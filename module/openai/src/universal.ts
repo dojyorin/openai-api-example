@@ -69,31 +69,19 @@ export class OpenAI{
         });
     }
 
-    #azureUnsupported(){
-        if(this.#azure){
-            throw new ReferenceError();
-        }
-    }
-
     async createChatCompletion(option:CreateChatCompletionRequest):Promise<CreateChatCompletionResponse>{
         return this.#azure ? await this.#fetchAz("chat", "/chat/completions", option) : await this.#fetch("/chat/completions", option);
     }
 
     async createImage(option:CreateImageRequest):Promise<ImagesResponse>{
-        this.#azureUnsupported();
-
         return await this.#fetch("/images/generations", option);
     }
 
     async listModels():Promise<ListModelsResponse>{
-        this.#azureUnsupported();
-
         return await this.#fetch("/models");
     }
 
     async retrieveModel(model:string):Promise<Model>{
-        this.#azureUnsupported();
-
         return await this.#fetch(`/models/${model}`);
     }
 }
