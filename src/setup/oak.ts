@@ -1,6 +1,6 @@
 import {Oak} from "../../deps.ts";
 import {router} from "../routing/router.ts";
-import {errorResponse} from "../plugin/error.ts";
+import {errorResponse} from "../mw/error.ts";
 
 const oak = new Oak();
 
