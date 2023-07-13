@@ -25,31 +25,30 @@ export class OpenAI{
     }
 
     async #fetch<T extends Opt<T>, U extends Opt<U>>(path:string, body?:T){
+        let ep = "";
+
         const request = {
             method: body ? "POST" : "GET",
             body: body && JSON.stringify(body),
+            query: new URLSearchParams(),
             headers: new Headers(body && {
                 "Content-Type": "application/json"
             })
         };
 
         if(this.#azure){
+            ep = `https://${this.#azure.resource}.openai.azure.com/openai/${path}`;
+            request.query.set("api-version", this.#azure.version);
             request.headers.set("api-key", this.#key);
-
-            return <U>await fetchExtend(`https://${this.#azure.resource}.openai.azure.com/openai/${path}`, "json", {
-                ...request,
-                query: {
-                    "api-version": this.#azure.version
-                }
-            });
         }
         else{
+            ep = `https://api.openai.com/v1/${path}`;
             request.headers.set("Authorization", `Bearer ${this.#key}`);
-
-            return <U>await fetchExtend(`https://api.openai.com/v1/${path}`, "json", {
-                ...request
-            });
         }
+
+        return <U>await fetchExtend(ep, "json", {
+            ...request
+        });
     }
 
     get useAzure():boolean{
