@@ -13,10 +13,6 @@ type Opt<T> = Partial<Record<keyof T, unknown>>;
 interface AzureEndpoint{
     resource: string;
     version: string;
-    aad: boolean;
-    deployment: {
-        chat?: string;
-    };
 }
 
 export class OpenAI{
@@ -29,52 +25,39 @@ export class OpenAI{
     }
 
     async #fetch<T extends Opt<T>, U extends Opt<U>>(path:string, body?:T){
+        const request = {
+            method: body ? "POST" : "GET",
+            body: body && JSON.stringify(body),
+            headers: new Headers(body && {
+                "Content-Type": "application/json"
+            })
+        };
+
         if(this.#azure){
-            throw new ReferenceError();
-        }
+            request.headers.set("api-key", this.#key);
 
-        return <U>await fetchExtend(`https://api.openai.com/v1/${path}`, "json", {
-            method: body ? "POST" : "GET",
-            body: body && JSON.stringify(body),
-            headers: {
-                "Authorization": `Bearer ${this.#key}`,
-                ...body && {
-                    "Content-Type": "application/json"
+            return <U>await fetchExtend(`https://${this.#azure.resource}.openai.azure.com/openai/${path}`, "json", {
+                ...request,
+                query: {
+                    "api-version": this.#azure.version
                 }
-            }
-        });
+            });
+        }
+        else{
+            request.headers.set("Authorization", `Bearer ${this.#key}`);
+
+            return <U>await fetchExtend(`https://api.openai.com/v1/${path}`, "json", {
+                ...request
+            });
+        }
     }
 
-    async #fetchAz<T extends Opt<T>, U extends Opt<U>>(deployment:keyof AzureEndpoint["deployment"], path:string, body?:T){
-        if(!this.#azure || !this.#azure.deployment[deployment]){
-            throw new ReferenceError();
-        }
-
-        return <U>await fetchExtend(`https://${this.#azure.resource}.openai.azure.com/openai/deployments/${this.#azure.deployment[deployment]}/${path}`, "json", {
-            method: body ? "POST" : "GET",
-            body: body && JSON.stringify(body),
-            headers: {
-                ...this.#azure.aad ? {
-                    "Authorization": `Bearer ${this.#key}`
-                } : {
-                    "api-key": this.#key
-                },
-                ...body && {
-                    "Content-Type": "application/json"
-                }
-            },
-            query: {
-                "api-version": this.#azure.version
-            }
-        });
-    }
-
-    get isAzure(){
+    get useAzure():boolean{
         return !!this.#azure;
     }
 
     async createChatCompletion(option:CreateChatCompletionRequest):Promise<CreateChatCompletionResponse>{
-        return this.#azure ? await this.#fetchAz("chat", "/chat/completions", option) : await this.#fetch("/chat/completions", option);
+        return await this.#fetch(this.#azure ? `/deployments/${option.model}/chat/completions` : "/chat/completions", option);
     }
 
     async createImage(option:CreateImageRequest):Promise<ImagesResponse>{
