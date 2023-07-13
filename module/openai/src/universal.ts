@@ -60,7 +60,7 @@ export class OpenAI{
     }
 
     async createImage(option:CreateImageRequest):Promise<ImagesResponse>{
-        return await this.#fetch("/images/generations", option);
+        return await this.#fetch(this.#azure ? "/images/generations:submit" : "/images/generations", option);
     }
 
     async listModels():Promise<ListModelsResponse>{
