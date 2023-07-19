@@ -1,4 +1,4 @@
-import {oak} from "./src/setup/oak.ts";
+import {oak} from "./src/oak.ts";
 
 await oak.listen({
     hostname: "0.0.0.0",
