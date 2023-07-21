@@ -1,7 +1,7 @@
-import {type OakContext, HttpError, HttpStatus} from "../../deps.ts";
+import {type OakMiddleware, HttpError, HttpStatus} from "../../deps.ts";
 
-export function errorResponse(){
-    return async(context:OakContext, next:() => Promise<unknown>)=>{
+export function errorResponse():OakMiddleware{
+    return async(context, next)=>{
         try{
             await next();
             context.throw(HttpStatus.NotFound);
