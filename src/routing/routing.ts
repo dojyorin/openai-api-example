@@ -1,7 +1,7 @@
 import {fromFileUrl, OakRouter} from "../../deps.ts";
-import {router as api_chat} from "./chat.ts";
-import {router as api_image} from "./image.ts";
-import {router as api_model} from "./model.ts";
+import {router as api_chat} from "./api/chat.ts";
+import {router as api_image} from "./api/image.ts";
+import {router as api_model} from "./api/model.ts";
 
 const router = new OakRouter();
 
