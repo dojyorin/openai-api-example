@@ -1,9 +1,9 @@
-import {type OakMiddleware, fromFileUrl} from "../../deps.ts";
+import {type OakMiddleware, mainPath} from "../../deps.ts";
 
 export function staticApplication():OakMiddleware{
     return async(context)=>{
         await context.send({
-            root: fromFileUrl(import.meta.resolve("../client")),
+            root: `${mainPath()}/src/www/application`,
             index: "index.html",
             path: "/application"
         });
