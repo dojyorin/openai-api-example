@@ -17,7 +17,7 @@ const route_static = new OakRouter();
 
 route_static.get("/", async(context)=>{
     await context.send({
-        root: fromFileUrl(import.meta.resolve("./application")),
+        root: fromFileUrl(import.meta.resolve("./client")),
         index: "index.html"
     });
 });
