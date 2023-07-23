@@ -1,6 +1,6 @@
 import {type OakMiddleware, HttpError, HttpStatus} from "../../deps.ts";
 
-export function errorResponse():OakMiddleware{
+export function catchError():OakMiddleware{
     return async(context, next)=>{
         try{
             await next();
