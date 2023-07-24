@@ -1,7 +1,6 @@
 <template>
     <v-app-bar density="compact" color="primary">
-        <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon>
-        <v-app-bar-title>Application</v-app-bar-title>
+        <v-app-bar-title class="ml-0 text-center">OpenAI API Example</v-app-bar-title>
     </v-app-bar>
 </template>
 

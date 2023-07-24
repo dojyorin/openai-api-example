@@ -11,5 +11,6 @@ export const provide = ((arg)=>{
 })({
     "xg-navigation": ref(false),
     "xg-loading": ref(false),
-    "xg-notifies": reactive([])
+    "xg-notifies": reactive([]),
+    "xg-threads": reactive([])
 });

@@ -2,12 +2,12 @@
     <v-app>
         <x-loading></x-loading>
         <x-notify></x-notify>
-        <x-navigation></x-navigation>
+        <!-- <x-navigation></x-navigation> -->
         <x-header></x-header>
         <v-main>
             <router-view></router-view>
         </v-main>
-        <x-footer></x-footer>
+        <!-- <x-footer></x-footer> -->
     </v-app>
 </template>
 
@@ -17,10 +17,10 @@
     export default defineComponent({
         components: {
             "x-header": defineAsyncComponent(fetchComponent("./layout/header.vue")),
-            "x-footer": defineAsyncComponent(fetchComponent("./layout/footer.vue")),
+            // "x-footer": defineAsyncComponent(fetchComponent("./layout/footer.vue")),
             "x-loading": defineAsyncComponent(fetchComponent("./layout/loading.vue")),
             "x-notify": defineAsyncComponent(fetchComponent("./layout/notify.vue")),
-            "x-navigation": defineAsyncComponent(fetchComponent("./layout/navigation.vue"))
+            // "x-navigation": defineAsyncComponent(fetchComponent("./layout/navigation.vue"))
         },
         setup(){
             const loading = inject("xg-loading");
