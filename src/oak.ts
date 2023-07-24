@@ -4,8 +4,8 @@ import {catchError, sendStatic} from "./mw/mod.ts";
 
 const oak = new Oak();
 
-oak.use(router.routes(), router.allowedMethods());
-oak.use(sendStatic());
 oak.use(catchError());
+oak.use(sendStatic());
+oak.use(router.routes(), router.allowedMethods());
 
 export {oak};
