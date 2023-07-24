@@ -1,4 +1,4 @@
-import {ref, reactive} from "../deps.js";
+import {reactive} from "../deps.js";
 
 export const provide = ((arg)=>{
     return {
@@ -9,8 +9,6 @@ export const provide = ((arg)=>{
         }
     };
 })({
-    "xg-navigation": ref(false),
-    "xg-loading": ref(false),
     "xg-notifies": reactive([]),
     "xg-threads": reactive([])
 });

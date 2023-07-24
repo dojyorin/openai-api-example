@@ -1,20 +1,18 @@
 <template>
     <div class="d-flex px-3 py-2 w-100">
-        <v-expand-x-transition>
-            <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="type">
-                <v-tooltip location="top" text="文章返信モード">
-                    <template #activator="{props}">
-                        <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
-                    </template>
-                </v-tooltip>
+        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="type">
+            <v-tooltip location="top" text="文章応答モード">
+                <template #activator="{props}">
+                    <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
+                </template>
+            </v-tooltip>
 
-                <v-tooltip location="top" text="画像返信モード">
-                    <template #activator="{props}">
-                        <v-btn :="props" icon="mdi-image-outline" value="image"></v-btn>
-                    </template>
-                </v-tooltip>
-            </v-btn-toggle>
-        </v-expand-x-transition>
+            <v-tooltip location="top" text="画像応答モード">
+                <template #activator="{props}">
+                    <v-btn :="props" icon="mdi-image-outline" value="image"></v-btn>
+                </template>
+            </v-tooltip>
+        </v-btn-toggle>
 
         <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" v-model="input"></v-textarea>
 
@@ -23,7 +21,7 @@
 </template>
 
 <script>
-    import {defineComponent, ref, inject} from "../../deps.js";
+    import {defineComponent, ref, inject, fetchExtend} from "../../deps.js";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {

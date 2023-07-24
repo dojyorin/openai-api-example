@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#FFFFFF">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>📡</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>💬</text></svg>">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
@@ -24,17 +24,13 @@
 <script async type="module">
     import {createApp, fetchComponent} from "./deps.js";
     import {route} from "./core/route.js";
-    import {store} from "./core/store.js";
     import {vuetify} from "./core/vuetify.js";
-    import {component} from "./core/component.js";
     import {provide} from "./core/provide.js";
 
     const vue = createApp(await fetchComponent("./core/main.vue")());
 
     vue.use(route);
-    vue.use(store);
     vue.use(vuetify);
-    vue.use(component);
     vue.use(provide);
 
     vue.mount("#vue");
