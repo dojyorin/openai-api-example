@@ -16,7 +16,11 @@
 
         <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" v-model="input"></v-textarea>
 
-        <v-btn flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
+        <v-tooltip location="top" text="送信">
+            <template #activator="{props}">
+                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
+            </template>
+        </v-tooltip>
     </div>
 </template>
 
