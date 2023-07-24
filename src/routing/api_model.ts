@@ -1,5 +1,5 @@
-import {OakRouter} from "../../../deps.ts";
-import {openai} from "../../openai.ts";
+import {OakRouter} from "../../deps.ts";
+import {openai} from "../openai.ts";
 
 const router = new OakRouter();
 
