@@ -3,7 +3,7 @@
         <v-list class="pa-0">
             <v-list-item v-for="{time, own, type, value} in threads" class="mb-6 pa-0">
                 <div class="d-flex" :class="own ? 'justify-end' : 'justify-start'">
-                    <div style="max-width:70%;">
+                    <div class="x-thread">
                         <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
                             <v-card-text v-if="type === 'text'" class="pa-3 text-body-1 text-pre-wrap">{{value}}</v-card-text>
                             <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
@@ -37,3 +37,9 @@
         }
     });
 </script>
+
+<style scoped>
+    .x-thread {
+        max-width: 70%;
+    }
+</style>
