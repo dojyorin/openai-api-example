@@ -1,6 +1,6 @@
-import {OakRouter} from "../../../deps.ts";
-import {openai} from "../../openai.ts";
-import {bodyJson} from "../../extension/request.ts";
+import {OakRouter, fetchExtend} from "../../deps.ts";
+import {openai} from "../openai.ts";
+import {bodyJson} from "../extension/request.ts";
 
 interface ImageRequest{
     query: string;
@@ -26,12 +26,11 @@ router.post("/", async({request, response})=>{
     const {data} = await openai.createImage({
         prompt: input.query,
         size: input.size && pixels[input.size],
-        response_format: "b64_json",
         n: 1
     });
 
     response.body = {
-        value: data[0].b64_json ?? ""
+        value: await fetchExtend(data[0].url, "base64")
     };
 });
 

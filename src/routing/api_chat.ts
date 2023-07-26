@@ -1,6 +1,6 @@
-import {type ChatCompletionRequestMessage, OakRouter} from "../../../deps.ts";
-import {openai} from "../../openai.ts";
-import {bodyJson} from "../../extension/request.ts";
+import {type ChatCompletionRequestMessage, OakRouter} from "../../deps.ts";
+import {openai} from "../openai.ts";
+import {bodyJson} from "../extension/request.ts";
 
 interface ChatRequest{
     query: string;
