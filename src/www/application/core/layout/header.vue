@@ -3,7 +3,7 @@
         <v-app-bar-title class="text-h5 ml-0 text-center">OpenAI API Example</v-app-bar-title>
 
         <template #image>
-            <v-img gradient="45deg, #174AFF, #0ECDFF"></v-img>
+            <v-img gradient="45deg, #E4980D, #A244E2"></v-img>
         </template>
     </v-app-bar>
 </template>
