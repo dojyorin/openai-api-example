@@ -35,8 +35,9 @@ router.post("/", async({request, response})=>{
         response.status = 415;
         return;
     }
-console.log(resource);
+
     response.body = {
+        url: resource,
         value: await fetchExtend(resource, "base64")
     };
 });
