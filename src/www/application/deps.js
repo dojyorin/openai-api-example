@@ -6,4 +6,4 @@ export {createRouter, createWebHashHistory} from "https://cdn.jsdelivr.net/npm/v
 export {createVuetify} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
 
 export {fetchComponent} from "https://esm.sh/gh/dojyorin/vue_sfc_portable@v1.6.2/mod.ts?bundle&target=esnext";
-export {fetchExtend} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.3.6/mod.universal.ts?bundle&target=esnext";
+export {fetchExtend, base64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.3.6/mod.universal.ts?bundle&target=esnext";

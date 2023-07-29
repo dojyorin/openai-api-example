@@ -25,7 +25,7 @@
 </template>
 
 <script>
-    import {defineComponent, ref, inject, fetchExtend} from "../../deps.js";
+    import {defineComponent, ref, inject, fetchExtend, base64Decode} from "../../deps.js";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {
