@@ -29,8 +29,15 @@ router.post("/", async({request, response})=>{
         n: 1
     });
 
+    const resource = data[0]?.url;
+
+    if(!resource){
+        response.status = 415;
+        return;
+    }
+console.log(resource);
     response.body = {
-        value: await fetchExtend(data[0].url, "base64")
+        value: await fetchExtend(resource, "base64")
     };
 });
 
