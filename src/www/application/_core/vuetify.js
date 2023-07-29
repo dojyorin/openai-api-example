@@ -2,9 +2,9 @@ import {createVuetify} from "../deps.js";
 
 export const vuetify = createVuetify({
     theme: {
-        defaultTheme: "main",
+        defaultTheme: "main-light",
         themes: {
-            "main": {
+            "main-light": {
                 dark: false,
                 colors: {
                     primary: "#03A9F4",
