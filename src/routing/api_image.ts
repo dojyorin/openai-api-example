@@ -36,9 +36,12 @@ router.post("/", async({request, response})=>{
         return;
     }
 
+    const {href, searchParams} = new URL(resource);
+
     response.body = {
-        url: resource,
-        value: await fetchExtend(resource, "base64")
+        value: await fetchExtend(href, "base64", {
+            query: searchParams
+        })
     };
 });
 
