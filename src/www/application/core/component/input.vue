@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex px-3 py-2 w-100">
+    <div class="d-flex px-3 py-2 w-100 align-center">
         <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="type">
             <v-tooltip location="top" text="文章応答モード">
                 <template #activator="{props}">
