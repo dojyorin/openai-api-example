@@ -1,4 +1,4 @@
-import {ref, reactive} from "../deps.js";
+import {reactive} from "../deps.js";
 
 export const provide = ((o)=>{
     return {
@@ -9,7 +9,6 @@ export const provide = ((o)=>{
         }
     };
 })({
-    "g-navigation": ref(false),
-    "g-loading": ref(false),
-    "g-notifies": reactive([])
+    "g-notifies": reactive([]),
+    "g-threads": reactive([])
 });
