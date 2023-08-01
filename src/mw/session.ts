@@ -4,19 +4,30 @@ import {sessions} from "../store.ts";
 export function setSessionId():OakMiddleware{
     const key = "sid";
 
-    return async({cookies}, next)=>{
-        if(!await cookies.get(key)){
+    return async({cookies, state}, next)=>{
+        const sid = await cookies.get(key);
+
+        if(sid){
+            sessions.get(sid);
+
+            state.sid = sid;
+        }
+        else{
             const uuid = crypto.randomUUID();
 
             await cookies.set(key, uuid, {
-                expires: new Date(),
                 httpOnly: true,
-                sameSite: "strict",
-                overwrite: false
+                secure: true,
+                sameSite: "strict"
             });
 
-            sessions.set(uuid);
-        };
+            sessions.set(uuid, {
+                update: new Date(),
+                history: []
+            });
+
+            state.sid = uuid;
+        }
 
         await next();
     };
