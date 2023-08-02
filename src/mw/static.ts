@@ -1,6 +1,7 @@
-import {type OakMiddleware, mainPath} from "../../deps.ts";
+import {mainPath} from "../../deps.ts";
+import {type MW} from "./utility.ts";
 
-export function sendStatic():OakMiddleware{
+export function sendStatic():MW{
     return async(context, next)=>{
         try{
             await context.send({

@@ -1,6 +1,7 @@
-import {type OakMiddleware, HttpError} from "../../deps.ts";
+import {HttpError} from "../../deps.ts";
+import {type MW} from "./utility.ts";
 
-export function catchError():OakMiddleware{
+export function catchError():MW{
     return async(context, next)=>{
         try{
             await next();

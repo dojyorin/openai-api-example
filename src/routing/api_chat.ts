@@ -1,6 +1,7 @@
-import {type ChatCompletionRequestMessage, OakRouter} from "../../deps.ts";
+import {type ChatCompletionRequestMessage} from "../../deps.ts";
 import {openai} from "../openai.ts";
 import {bodyJson} from "../extension/request.ts";
+import {createRouter} from "./utility.ts";
 
 interface ChatRequest{
     query: string;
@@ -8,7 +9,7 @@ interface ChatRequest{
     background: string;
 }
 
-const router = new OakRouter();
+const router = createRouter();
 
 router.post("/", async({request, response})=>{
     const input = await bodyJson<ChatRequest>(request);

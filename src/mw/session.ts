@@ -1,14 +1,14 @@
-import {OakMiddleware} from "../../deps.ts";
-import {sessions} from "../store.ts";
+import {sessions} from "../store/mod.ts";
+import {type MW} from "./utility.ts";
 
-export function setSessionId():OakMiddleware{
+export function setSessionId():MW{
     const key = "sid";
 
     return async({cookies, state}, next)=>{
         const sid = await cookies.get(key);
 
         if(sid){
-            sessions.get(sid);
+            sessions.touch(sid);
 
             state.sid = sid;
         }
@@ -22,7 +22,6 @@ export function setSessionId():OakMiddleware{
             });
 
             sessions.set(uuid, {
-                update: new Date(),
                 history: []
             });
 
