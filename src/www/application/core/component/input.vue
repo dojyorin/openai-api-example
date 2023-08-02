@@ -1,6 +1,6 @@
 <template>
-    <div class="d-flex px-3 py-2 w-100">
-        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="type">
+    <div class="d-flex justify-start align-center px-3 py-2 w-100">
+        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="type">
             <v-tooltip location="top" text="文章応答モード">
                 <template #activator="{props}">
                     <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-    import {defineComponent, ref, inject, fetchExtend} from "../../deps.js";
+    import {defineComponent, ref, inject, fetchExtend, base64Decode} from "../../deps.js";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {
@@ -40,10 +40,8 @@
     }
 
     function displayContent(own, type, value){
-        const [h, m] = new Date().toLocaleTimeString().split(/:/);
-
         return {
-            time: `${h}:${m}`,
+            time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
             own: own,
             type: type,
             value: value
@@ -58,8 +56,8 @@
 
     export default defineComponent({
         setup(){
-            const notifies = inject("xg-notifies");
-            const threads = inject("xg-threads");
+            const notifies = inject("g-notifies");
+            const threads = inject("g-threads");
 
             const input = ref("");
             const type = ref("chat");

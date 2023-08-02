@@ -1,14 +1,14 @@
 import {reactive} from "../deps.js";
 
-export const provide = ((arg)=>{
+export const provide = ((o)=>{
     return {
         install(context){
-            for(const [k, v] of Object.entries(arg)){
+            for(const [k, v] of Object.entries(o)){
                 context.provide(k, v);
             }
         }
     };
 })({
-    "xg-notifies": reactive([]),
-    "xg-threads": reactive([])
+    "g-notifies": reactive([]),
+    "g-threads": reactive([])
 });

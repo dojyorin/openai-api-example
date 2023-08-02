@@ -1,5 +1,9 @@
 <template>
-    <v-app-bar density="compact" color="primary">
-        <v-app-bar-title class="ml-0 text-center">OpenAI API Example</v-app-bar-title>
+    <v-app-bar density="compact" class="text-white">
+        <v-app-bar-title class="text-h5 ml-0 text-center">OpenAI API Example</v-app-bar-title>
+
+        <template #image>
+            <v-img gradient="45deg, #E4980D, #A244E2"></v-img>
+        </template>
     </v-app-bar>
 </template>

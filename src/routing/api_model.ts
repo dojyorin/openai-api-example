@@ -1,7 +1,7 @@
-import {OakRouter} from "../../../deps.ts";
-import {openai} from "../../openai.ts";
+import {openai} from "../openai.ts";
+import {createRouter} from "./utility.ts";
 
-const router = new OakRouter();
+const router = createRouter();
 
 router.get("/", async({response})=>{
     const {data} = await openai.listModels();
