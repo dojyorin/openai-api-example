@@ -1,5 +1,5 @@
 <template>
-    <div class="d-flex px-3 py-2 w-100 align-center">
+    <div class="d-flex justify-start align-center px-3 py-2 w-100">
         <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="type">
             <v-tooltip location="top" text="文章応答モード">
                 <template #activator="{props}">
@@ -40,10 +40,8 @@
     }
 
     function displayContent(own, type, value){
-        const [h, m] = new Date().toLocaleTimeString().split(/:/);
-
         return {
-            time: `${h}:${m}`,
+            time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
             own: own,
             type: type,
             value: value
