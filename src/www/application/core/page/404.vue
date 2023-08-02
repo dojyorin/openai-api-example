@@ -1,3 +1,3 @@
 <template>
-    <v-row no-gutters justify="center" class="fill-height align-center text-h4">Not Found</v-row>
+    <div class="fill-height d-flex justify-center align-center text-h4">Not Found</div>
 </template>

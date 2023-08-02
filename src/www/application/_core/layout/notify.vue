@@ -1,6 +1,6 @@
 <template>
     <v-snackbar v-for="notify in notifies" model-value position="fixed" location="top" z-index="3000" :color="notify.color" timeout="-1" v-bind="notifyTimeout(notify, 5000)">
-        <div>{{notify.message}}</div>
+        <span>{{notify.message}}</span>
 
         <template #actions>
             <v-btn ripple density="comfortable" icon="mdi-close" @click="notifyTimeout(notify, 0)"></v-btn>
