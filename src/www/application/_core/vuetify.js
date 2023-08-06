@@ -1,6 +1,6 @@
 import {createVuetify} from "../deps.js";
 
-export default createVuetify({
+export const vuetify = createVuetify({
     theme: {
         defaultTheme: "main",
         themes: {

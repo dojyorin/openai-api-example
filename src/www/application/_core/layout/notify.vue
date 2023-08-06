@@ -13,7 +13,7 @@
 
     export default defineComponent({
         setup(){
-            const notifies = inject("g-layout-notify");
+            const notifies = inject("g-notifies");
 
             async function notifyTimeout(notify, ms){
                 await new Promise(done => setTimeout(done, ms));
