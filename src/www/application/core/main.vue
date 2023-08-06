@@ -1,5 +1,6 @@
 <template>
     <v-app>
+        <x-loading></x-loading>
         <x-notify></x-notify>
         <x-header></x-header>
         <v-main>
@@ -14,6 +15,7 @@
     export default defineComponent({
         components: {
             "x-header": defineAsyncComponent(fetchComponent("./layout/header.vue")),
+            "x-loading": defineAsyncComponent(fetchComponent("./layout/loading.vue")),
             "x-notify": defineAsyncComponent(fetchComponent("./layout/notify.vue"))
         }
     });

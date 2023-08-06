@@ -1,6 +1,6 @@
 import {createRouter, createWebHashHistory, fetchComponent} from "../deps.js";
 
-export const route = createRouter({
+export default createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: "/",

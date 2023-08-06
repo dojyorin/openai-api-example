@@ -31,7 +31,7 @@
             "x-input": defineAsyncComponent(fetchComponent("../component/input.vue")),
         },
         setup(){
-            const threads = inject("g-threads");
+            const threads = inject("g-thread");
 
             return {threads};
         }

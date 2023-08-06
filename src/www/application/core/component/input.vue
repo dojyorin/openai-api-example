@@ -14,11 +14,11 @@
             </v-tooltip>
         </v-btn-toggle>
 
-        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" v-model="input"></v-textarea>
+        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestAPI()" v-model="input"></v-textarea>
 
         <v-tooltip location="top" text="送信">
             <template #activator="{props}">
-                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
+                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI()"></v-btn>
             </template>
         </v-tooltip>
     </div>
@@ -56,13 +56,13 @@
 
     export default defineComponent({
         setup(){
-            const notifies = inject("g-notifies");
-            const threads = inject("g-threads");
+            const notifies = inject("g-layout-notify");
+            const threads = inject("g-thread");
 
             const input = ref("");
             const type = ref("chat");
 
-            async function requestApi(){
+            async function requestAPI(){
                 const inputValue = input.value;
 
                 if(!inputValue){
@@ -104,7 +104,7 @@
                 }
             }
 
-            return {input, type, requestApi};
+            return {input, type, requestAPI};
         }
     });
 </script>
