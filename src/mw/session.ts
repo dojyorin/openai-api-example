@@ -1,4 +1,4 @@
-import {sessions} from "../store/mod.ts";
+import {session} from "../store/mod.ts";
 import {type MW} from "./utility.ts";
 
 export function setSessionId():MW{
@@ -8,8 +8,6 @@ export function setSessionId():MW{
         const sid = await cookies.get(key);
 
         if(sid){
-            sessions.touch(sid);
-
             state.sid = sid;
         }
         else{
