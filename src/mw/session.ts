@@ -1,4 +1,4 @@
-import {session} from "../store/mod.ts";
+import {kv, t_session} from "../kv.ts";
 import {type MW} from "./utility.ts";
 
 export function setSessionId():MW{
@@ -19,9 +19,7 @@ export function setSessionId():MW{
                 sameSite: "strict"
             });
 
-            sessions.set(uuid, {
-                history: []
-            });
+            await kv.set([t_session, uuid], "");
 
             state.sid = uuid;
         }

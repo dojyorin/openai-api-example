@@ -1,1 +1,0 @@
-export const session = await Deno.openKv();
