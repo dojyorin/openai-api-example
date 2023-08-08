@@ -1,6 +1,6 @@
 <template>
     <v-container class="py-0">
-        <v-virtual-scroll ref="vscroll" :height="height" :items="threads" class="py-2">
+        <v-virtual-scroll ref="vScroll" :height="balloonHeight" :items="balloons" class="py-2">
             <template #="{item}">
                 <div class="d-flex" :class="item.own ? 'justify-end' : 'justify-start'">
                     <div class="rounded-lg bg-white" style="max-width: 70%;">
@@ -17,7 +17,7 @@
     </v-container>
 
     <v-footer :height="inputHeight" color="grey-lighten-2" class="justify-start align-center py-0 w-100">
-        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="type">
+        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="formType">
             <v-tooltip location="top" text="文章応答モード">
                 <template #activator="{props}">
                     <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
@@ -31,11 +31,11 @@
             </v-tooltip>
         </v-btn-toggle>
 
-        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestApi()" v-model="input"></v-textarea>
+        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestAPI()" v-model="formInput"></v-textarea>
 
         <v-tooltip location="top" text="送信">
             <template #activator="{props}">
-                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestApi()"></v-btn>
+                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI()"></v-btn>
             </template>
         </v-tooltip>
     </v-footer>
@@ -76,60 +76,61 @@
             const display = useDisplay();
             const layout = useLayout();
 
-            const input = ref("");
-            const type = ref("chat");
-            const vscroll = ref(null);
+            const formInput = ref("");
+            const formType = ref("chat");
+            const vScroll = ref(null);
             const inputHeight = ref(56);
-            const threads = reactive([]);
+            const balloons = reactive([]);
 
             const notifies = inject("@layout:notify");
 
-            const height = computed(() => display.height.value - layout.mainRect.value.top - inputHeight.value);
+            const balloonHeight = computed(() => display.height.value - layout.mainRect.value.top - inputHeight.value);
 
-            async function scrollBottom(){
-                const {scrollHeight, scrollTop, clientHeight} = vscroll.value._.vnode.el;
+            async function bottomStick(){
+                const {scrollHeight, scrollTop, clientHeight} = vScroll.value._.vnode.el;
+
                 if(scrollHeight - (clientHeight + scrollTop)){
                     return;
                 }
 
                 await nextTick();
-                vscroll.value.scrollToIndex(threads.length - 1);
+                vScroll.value.scrollToIndex(balloons.length - 1);
             }
 
-            async function requestApi(){
-                const inputValue = input.value;
+            async function requestAPI(){
+                const formInputValue = formInput.value;
 
-                if(!inputValue){
+                if(!formInputValue){
                     return;
                 }
 
-                threads.push(displayContent(true, "text", inputValue));
+                balloons.push(displayContent(true, "text", formInputValue));
+                await bottomStick();
 
-                input.value = "";
+                formInput.value = "";
 
                 try{
-                    switch(type.value){
+                    switch(formType.value){
                         case "chat": {
                             const {value} = await fetchAPI("/api/chat", {
-                                query: inputValue
+                                query: formInputValue
                             });
 
-
-                            threads.push(displayContent(false, "text", value));
+                            balloons.push(displayContent(false, "text", value));
+                            await bottomStick();
                         } break;
 
                         case "image": {
                             const {value} = await fetchAPI("/api/image", {
-                                query: inputValue
+                                query: formInputValue
                             });
 
-                            threads.push(displayContent(false, "picture", blobURL(base64Decode(value), "image/png")));
+                            balloons.push(displayContent(false, "picture", blobURL(base64Decode(value), "image/png")));
+                            await bottomStick();
                         } break;
 
                         default: break;
                     }
-
-                    await scrollBottom();
                 }
                 catch(e){
                     console.error(e);
@@ -141,7 +142,7 @@
                 }
             }
 
-            return {input, inputHeight, type, requestApi, threads, height, vscroll};
+            return {formInput, inputHeight, formType, requestAPI, balloons, balloonHeight, vScroll};
         }
     });
 </script>
