@@ -1,39 +1,51 @@
 <template>
-    <v-container>
-        <v-list class="pa-0" bg-color="transparent">
-            <v-list-item v-for="{time, own, type, value} in threads" class="mb-6 pa-0">
-                <div class="d-flex" :class="own ? 'justify-end' : 'justify-start'">
-                    <div class="rounded-lg bg-white" style="max-width: 70%;">
-                        <v-card flat rounded="lg" variant="tonal" :color="own ? 'deep-purple-accent-4' : 'orange-darken-4'">
-                            <v-card-text v-if="type === 'text'" class="pa-3 text-body-1 text-pre-wrap">{{value}}</v-card-text>
-                            <v-img v-else-if="type === 'picture'" :src="value" width="256"></v-img>
-                        </v-card>
-                    </div>
-                </div>
+    <v-container fluid>
+        <v-row justify="center">
+            <v-col cols>
+                <v-card>
+                    <v-card-item>
+                        <v-card-title class="text-center">{{count}} : {{countx}}</v-card-title>
+                    </v-card-item>
 
-                <v-card flat color="transparent">
-                    <v-card-text class="py-0 px-1" :class="own ? 'text-end' : 'text-start'">{{time}}</v-card-text>
+                    <v-card-actions class="justify-center">
+                        <v-btn color="green" variant="flat" @click="increment()">Increment</v-btn>
+                        <v-btn color="purple" variant="flat" @click="incrementx()">IncrementX</v-btn>
+                    </v-card-actions>
                 </v-card>
-            </v-list-item>
-        </v-list>
+            </v-col>
+        </v-row>
     </v-container>
-
-    <v-footer app color="grey-lighten-2" class="pa-0">
-        <x-input></x-input>
-    </v-footer>
 </template>
 
 <script>
-    import {defineComponent, defineAsyncComponent, inject, fetchComponent} from "../../deps.js";
+    import {defineComponent, ref, inject} from "../../deps.js";
 
     export default defineComponent({
-        components: {
-            "x-input": defineAsyncComponent(fetchComponent("../component/input.vue")),
-        },
         setup(){
-            const threads = inject("g-thread");
+            const count = ref(0);
 
-            return {threads};
+            const notifies = inject("@layout:notify");
+            const countx = inject("@increment:count");
+
+            function increment(){
+                count.value++;
+
+                notifies.push({
+                    color: "green",
+                    message: "Increment!"
+                });
+            }
+
+            function incrementx(){
+                countx.value++;
+
+                notifies.push({
+                    color: "purple",
+                    message: "IncrementX!"
+                });
+            }
+
+            return {count, countx, increment, incrementx};
         }
     });
 </script>

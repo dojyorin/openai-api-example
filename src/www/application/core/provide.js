@@ -2,8 +2,9 @@ import {ref, reactive} from "../deps.js";
 
 export default {
     install(context){
-        context.provide("g-layout-loading", ref(false));
-        context.provide("g-layout-notify", reactive([]));
-        context.provide("g-thread", reactive([]));
+        context.provide("@layout:navigation", ref(false));
+        context.provide("@layout:loading", ref(false));
+        context.provide("@layout:notify", reactive([]));
+        context.provide("@increment:count", ref(0));
     }
 };
