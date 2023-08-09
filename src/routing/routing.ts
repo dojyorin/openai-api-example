@@ -1,7 +1,7 @@
 import {createRouter} from "./utility.ts";
-import {router as api_chat} from "./api_chat.ts";
-import {router as api_image} from "./api_image.ts";
-import {router as api_model} from "./api_model.ts";
+import {default as api_chat} from "./api_chat.ts";
+import {default as api_image} from "./api_image.ts";
+import {default as api_model} from "./api_model.ts";
 
 const router = createRouter();
 
@@ -16,4 +16,4 @@ router.get("/", ({response})=>{
     response.redirect("/application/");
 });
 
-export {router};
+export default router;
