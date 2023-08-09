@@ -1,23 +1,27 @@
 <template>
     <v-container class="py-0">
-        <v-virtual-scroll ref="vScroll" :height="balloonHeight" :items="balloons" class="py-2">
+        <v-virtual-scroll class="py-2" ref="bubbleView" :height="bubbleHeight" :items="posts" v-scroll.self="onScroll">
             <template #="{item}">
-                <div class="d-flex" :class="item.own ? 'justify-end' : 'justify-start'">
-                    <div class="rounded-lg bg-white" style="max-width: 70%;">
-                        <v-card flat rounded="lg" variant="tonal" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
-                            <v-card-text v-if="item.type === 'text'" class="pa-3 text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
-                            <v-img v-else-if="item.type === 'picture'" :src="item.value" width="256"></v-img>
-                        </v-card>
-                    </div>
+                <div class="d-flex" :class="`justify-${item.own ? 'end' : 'start'}`">
+                    <v-card flat max-width="70%" rounded="lg" variant="tonal" class="bg-white" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
+                        <v-card-text v-if="item.type === 'text'" class="text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
+                        <v-img v-else-if="item.type === 'picture'" :src="item.value" width="256"></v-img>
+                    </v-card>
                 </div>
 
-                <div class="px-1 mb-4 text-caption" :class="item.own ? 'text-end' : 'text-start'">{{item.time}}</div>
+                <v-card flat class="px-1 mb-6">
+                    <v-card-text class="pa-0" :class="`text-${item.own ? 'end' : 'start'}`">{{item.time}}</v-card-text>
+                </v-card>
             </template>
         </v-virtual-scroll>
     </v-container>
 
-    <v-footer :height="inputHeight" color="grey-lighten-2" class="justify-start align-center py-0 w-100">
-        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="secondary" v-model="formType">
+    <v-slide-y-transition>
+        <v-alert position="absolute" location="bottom" density="compact" elevation="4" variant="tonal" color="light-blue-accent-4" class="bg-white" :style="`bottom: ${inputHeight + 8}px;`" v-model="alertNewPost">新着メッセージ</v-alert>
+    </v-slide-y-transition>
+
+    <v-footer app height="56" color="grey-lighten-2" class="justify-start align-center py-0 px-2 w-100">
+        <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="formType">
             <v-tooltip location="top" text="文章応答モード">
                 <template #activator="{props}">
                     <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
@@ -31,18 +35,18 @@
             </v-tooltip>
         </v-btn-toggle>
 
-        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" class="mx-3" label="入力 (送信:Alt+Enter)" @keyup.alt.enter.exact="({target}) => target.blur() || requestAPI()" v-model="formInput"></v-textarea>
+        <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" label="入力 (送信:Alt+Enter)" class="mx-2" @keyup.alt.enter.exact="requestAPI" v-model="formText"></v-textarea>
 
         <v-tooltip location="top" text="送信">
             <template #activator="{props}">
-                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI()"></v-btn>
+                <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI"></v-btn>
             </template>
         </v-tooltip>
     </v-footer>
 </template>
 
 <script>
-    import {defineComponent, ref, reactive, inject, computed, nextTick, useDisplay, useLayout, fetchComponent, fetchExtend, base64Decode} from "../../deps.js";
+    import {defineComponent, ref, reactive, inject, computed, nextTick, useDisplay, useLayout, fetchExtend, base64Decode} from "../../deps.js";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {
@@ -56,19 +60,8 @@
         });
     }
 
-    function displayContent(own, type, value){
-        return {
-            time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
-            own: own,
-            type: type,
-            value: value
-        };
-    }
-
     function blobURL(data, mime){
-        return URL.createObjectURL(new Blob([data], {
-            type: mime
-        }));
+        return URL.createObjectURL(new Blob([data], {type: mime}));
     }
 
     export default defineComponent({
@@ -76,38 +69,56 @@
             const display = useDisplay();
             const layout = useLayout();
 
-            const formInput = ref("");
+            const formText = ref("");
             const formType = ref("chat");
-            const vScroll = ref(null);
-            const inputHeight = ref(56);
-            const balloons = reactive([]);
+            const alertNewPost = ref(false);
+            const bubbleView = ref(null);
+            const posts = reactive([]);
 
             const notifies = inject("@layout:notify");
 
-            const balloonHeight = computed(() => display.height.value - layout.mainRect.value.top - inputHeight.value);
+            const bubbleHeight = computed(() => display.height.value - layout.mainRect.value.top - layout.mainRect.value.bottom);
+            const inputHeight = computed(() => layout.mainRect.value.bottom);
 
-            async function bottomStick(){
-                const {scrollHeight, scrollTop, clientHeight} = vScroll.value._.vnode.el;
+            function stickNewPost(){
+                const {scrollHeight, scrollTop, clientHeight} = bubbleView.value._.vnode.el;
 
-                if(scrollHeight - (clientHeight + scrollTop)){
-                    return;
+                return scrollHeight - (clientHeight + scrollTop) === 0;
+            }
+
+            async function displayPost(own, type, value){
+                posts.push({
+                    time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
+                    own: own,
+                    type: type,
+                    value: value
+                });
+
+                if(stickNewPost()){
+                    await nextTick();
+                    bubbleView.value.scrollToIndex(posts.length - 1);
                 }
+                else if(!own){
+                    alertNewPost.value = true;
+                }
+            }
 
-                await nextTick();
-                vScroll.value.scrollToIndex(balloons.length - 1);
+            function onScroll(){
+                if(stickNewPost() && alertNewPost.value){
+                    alertNewPost.value = false;
+                }
             }
 
             async function requestAPI(){
-                const formInputValue = formInput.value;
+                const formInputValue = formText.value;
 
                 if(!formInputValue){
                     return;
                 }
 
-                balloons.push(displayContent(true, "text", formInputValue));
-                await bottomStick();
+                await displayPost(true, "text", formInputValue);
 
-                formInput.value = "";
+                formText.value = "";
 
                 try{
                     switch(formType.value){
@@ -116,8 +127,7 @@
                                 query: formInputValue
                             });
 
-                            balloons.push(displayContent(false, "text", value));
-                            await bottomStick();
+                            await displayPost(false, "text", value);
                         } break;
 
                         case "image": {
@@ -125,8 +135,7 @@
                                 query: formInputValue
                             });
 
-                            balloons.push(displayContent(false, "picture", blobURL(base64Decode(value), "image/png")));
-                            await bottomStick();
+                            await displayPost(false, "picture", blobURL(base64Decode(value), "image/png"));
                         } break;
 
                         default: break;
@@ -142,7 +151,7 @@
                 }
             }
 
-            return {formInput, inputHeight, formType, requestAPI, balloons, balloonHeight, vScroll};
+            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, onScroll};
         }
     });
 </script>
