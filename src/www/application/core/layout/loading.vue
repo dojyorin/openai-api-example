@@ -9,7 +9,7 @@
 
     export default defineComponent({
         setup(){
-            const loading = inject("g-layout-loading");
+            const loading = inject("@layout:loading");
 
             return {loading};
         }

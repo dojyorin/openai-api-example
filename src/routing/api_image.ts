@@ -1,5 +1,5 @@
 import {fetchExtend} from "../../deps.ts";
-import {openai} from "../openai.ts";
+import {default as openai} from "../openai.ts";
 import {bodyJson} from "../extension/request.ts";
 import {createRouter} from "./utility.ts";
 
@@ -46,4 +46,4 @@ router.post("/", async({request, response})=>{
     };
 });
 
-export {router};
+export default router;

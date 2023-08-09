@@ -1,4 +1,7 @@
-import {oak} from "./src/oak.ts";
+/// <reference lib="deno.ns"/>
+/// <reference lib="deno.unstable"/>
+
+import {default as oak} from "./src/oak.ts";
 
 await oak.listen({
     hostname: "0.0.0.0",

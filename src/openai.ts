@@ -8,4 +8,4 @@ if(!key){
 
 const openai = new OpenAI(key);
 
-export {openai};
+export default openai;
