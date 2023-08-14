@@ -5,7 +5,7 @@
                 <div class="d-flex" :class="`justify-${item.own ? 'end' : 'start'}`">
                     <v-card flat max-width="70%" rounded="lg" variant="tonal" class="bg-white" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
                         <v-card-text v-if="item.type === 'text'" class="text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
-                        <v-img v-else-if="item.type === 'picture'" :src="item.value" width="256"></v-img>
+                        <v-img v-else-if="item.type === 'picture'" width="256" class="v-card--link" :src="item.value" @click="openTab(item.value)"></v-img>
                     </v-card>
                 </div>
 
@@ -151,7 +151,11 @@
                 }
             }
 
-            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, onScroll};
+            function openTab(link){
+                window.open(link, "_blank");
+            }
+
+            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, openTab, onScroll};
         }
     });
 </script>
