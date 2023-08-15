@@ -1,6 +1,3 @@
-/// <reference lib="deno.ns"/>
-/// <reference lib="deno.unstable"/>
-
 import {default as oak} from "./src/oak.ts";
 
 await oak.listen({
