@@ -1,4 +1,4 @@
-import {default as openai} from "../openai.ts";
+import {openai} from "../openai.ts";
 import {createRouter} from "./utility.ts";
 
 const router = createRouter();
@@ -11,4 +11,4 @@ router.get("/", async({response})=>{
     };
 });
 
-export default router;
+export {router};

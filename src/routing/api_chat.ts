@@ -1,5 +1,4 @@
-import {type ChatCompletionRequestMessage} from "../../deps.ts";
-import {default as openai} from "../openai.ts";
+import {openai} from "../openai.ts";
 import {bodyJson} from "../extension/request.ts";
 import {createRouter} from "./utility.ts";
 
@@ -19,7 +18,7 @@ router.post("/", async({request, response})=>{
         return;
     }
 
-    const params:ChatCompletionRequestMessage[] = [{
+    const params:Parameters<typeof openai.createChatCompletion>[0]["messages"] = [{
         role: "user",
         content: input.query
     }];
@@ -48,4 +47,4 @@ router.post("/", async({request, response})=>{
     };
 });
 
-export default router;
+export {router};
