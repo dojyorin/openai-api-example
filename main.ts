@@ -1,9 +1,6 @@
 import {oak} from "./src/oak.ts";
 
-Deno.serve({
-
-}, request => request);
-await oak.listen({
+await Deno.serve({
     hostname: "0.0.0.0",
-    port: 3456
-});
+    port: 8765
+}, async request => await oak.handle(request) ?? new Response()).finished;
