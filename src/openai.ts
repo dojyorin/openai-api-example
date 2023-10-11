@@ -6,6 +6,6 @@ if(!key){
     throw new ReferenceError("Environment variable 'OPENAI_API_KEY' not found.");
 }
 
-const openai = new OpenAI(key);
+const openai = new OpenAI(key, "v1");
 
 export {openai};
