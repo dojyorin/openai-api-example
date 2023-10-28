@@ -5,10 +5,18 @@ export const router = createRouter({
     routes: [{
         path: "/",
         name: "index",
-        component: fetchComponent(import.meta.resolve("./page/index.vue"))
+        component: fetchComponent("./core/page/index.vue")
+    }, {
+        path: "/sub",
+        name: "sub",
+        component: fetchComponent("./core/page/sub.vue")
+    }, {
+        path: "/third",
+        name: "third",
+        component: fetchComponent("./core/page/third.vue")
     }, {
         path: "/:catchAll(.*)",
         name: "404",
-        component: fetchComponent(import.meta.resolve("./page/404.vue"))
+        component: fetchComponent("./core/page/404.vue")
     }]
 });
