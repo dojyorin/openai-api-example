@@ -11,12 +11,12 @@
             opacity: 0;
         }
 
-        80% {
+        75% {
             transform: scale(0) rotate(45deg);
             opacity: 0.5;
         }
 
-        81% {
+        80% {
             transform: scale(4) rotate(45deg);
             opacity: 1;
         }

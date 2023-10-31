@@ -1,22 +1,26 @@
 import {createRouter, createWebHashHistory, fetchComponent} from "../deps.js";
 
+function f(path){
+    return fetchComponent(import.meta.resolve(path));
+}
+
 export const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: "/",
-        name: "index",
-        component: fetchComponent("./core/page/index.vue")
+        name: "home",
+        component: f("./page/home.vue")
     }, {
         path: "/sub",
         name: "sub",
-        component: fetchComponent("./core/page/sub.vue")
+        component: f("./page/sub.vue")
     }, {
         path: "/third",
         name: "third",
-        component: fetchComponent("./core/page/third.vue")
+        component: f("./page/third.vue")
     }, {
         path: "/:catchAll(.*)",
         name: "404",
-        component: fetchComponent("./core/page/404.vue")
+        component: f("./page/404.vue")
     }]
 });
