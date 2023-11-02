@@ -46,7 +46,7 @@
 </template>
 
 <script>
-    import {defineComponent, ref, reactive, inject, computed, nextTick, useDisplay, useLayout, fetchExtend, base64Decode} from "../../deps.js";
+    import {defineComponent, ref, reactive, inject, computed, nextTick, useDisplay, useLayout, fetchExtend, b64Decode} from "../../deps.js";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {
@@ -135,7 +135,7 @@
                                 query: formInputValue
                             });
 
-                            await displayPost(false, "picture", blobURL(base64Decode(value), "image/png"));
+                            await displayPost(false, "picture", blobURL(b64Decode(value), "image/png"));
                         } break;
 
                         default: break;
