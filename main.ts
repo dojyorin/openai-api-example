@@ -1,3 +1,3 @@
-import {oak} from "./src/oak.ts";
+import {oak} from "./src/server/oak.ts";
 
 await Deno.serve(async request => await oak.handle(request) ?? new Response()).finished;

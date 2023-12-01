@@ -1,6 +1,7 @@
+import {Router} from "../../../deps.ts";
 import {openai} from "../openai.ts";
 import {bodyJson} from "../extension/request.ts";
-import {createRouter} from "./utility.ts";
+import {type ServerState} from "../oak.ts";
 
 interface ChatRequest{
     query: string;
@@ -8,7 +9,7 @@ interface ChatRequest{
     background: string;
 }
 
-const router = createRouter();
+const router = new Router<ServerState>();
 
 router.post("/", async({request, response})=>{
     const input = await bodyJson<ChatRequest>(request);

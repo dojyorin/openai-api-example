@@ -1,7 +1,7 @@
-import {mainPath} from "../../deps.ts";
-import {type MW} from "./utility.ts";
+import {Middleware, mainPath} from "../../deps.ts";
+import {type ServerState} from "../oak.ts";
 
-export function sendStatic():MW{
+export function sendStatic():OakMiddleware<ServerState>{
     return async(context, next)=>{
         try{
             await context.send({

@@ -1,4 +1,4 @@
-import {type OakRequest, type Opt} from "../../deps.ts";
+import {type OakRequest, type Opt} from "../../../deps.ts";
 
 export async function bodyJson<T extends Opt<T>>(request:OakRequest){
     const json = <T>await request.body({

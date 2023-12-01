@@ -1,15 +1,21 @@
 import {HttpError} from "../../deps.ts";
-import {type MW} from "./utility.ts";
+import {type ServerState} from "../oak.ts";
 
-export function catchError():MW{
-    return async(context, next)=>{
+export function catchError():OakMiddleware<ServerState>{
+    return async({response}, next)=>{
         try{
             await next();
         }
         catch(e){
-            const {message, status} = new HttpError(e);
-            context.response.status = status;
-            context.response.body = message;
+            if(e instanceof HttpError){
+                const {message, status} = new HttpError(e);
+                response.status = status;
+                response.body = message;
+            }
+            else{
+                console.error(e);
+                response.status = 500;
+            }
         }
     };
 }
