@@ -3,7 +3,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="height=device-height,width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>🌌</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>🧠</text></svg>">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
@@ -23,6 +23,22 @@
     import {createRouter, createWebHashHistory, useRouter} from "https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.esm-browser.min.js";
     import {createVuetify, useDisplay, useLayout} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
 
+    async function fetchAPI(path, body){
+        return await fetchExtend(path, "json", {
+            method: body ? "POST" : "GET",
+            body: body && JSON.stringify(body),
+            headers: {
+                ...body && {
+                    "Content-Type": "application/json"
+                }
+            }
+        });
+    }
+
+    function blobURL(data, mime){
+        return URL.createObjectURL(new Blob([data], {type: mime}));
+    }
+
     const sfc_common_reflect = defineComponent({
         template: /*html*/`
             <div class="x-reflect">
@@ -40,11 +56,11 @@
     const sfc_layout_main_header = defineComponent({
         template: /*html*/`
             <v-app-bar density="compact" class="text-white">
-                <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon>
-                <v-app-bar-title class="text-h5">Application</v-app-bar-title>
+                <!-- <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon> -->
+                <v-app-bar-title class="text-h5">OpenAI API Example</v-app-bar-title>
 
                 <template #image>
-                    <v-img gradient="45deg, #174AFF, #0ECDFF"></v-img>
+                    <v-img gradient="45deg, #E4980D, #A244E2"></v-img>
                 </template>
             </v-app-bar>
         `,
@@ -127,12 +143,12 @@
             <v-app>
                 <x-loading></x-loading>
                 <x-notify></x-notify>
-                <x-navigation></x-navigation>
+                <!-- <x-navigation></x-navigation> -->
                 <x-header></x-header>
                 <v-main>
                     <router-view></router-view>
                 </v-main>
-                <x-footer></x-footer>
+                <!-- <x-footer></x-footer> -->
             </v-app>
         `,
         components: {
@@ -152,117 +168,142 @@
 
     const sfc_page_home = defineComponent({
         template: /*html*/`
-            <v-container fluid>
-                <v-row justify="center">
-                    <v-col cols>
-                        <v-card>
-                            <v-card-item>
-                                <v-card-title class="text-center">{{count}} : {{countx}}</v-card-title>
-                            </v-card-item>
+            <v-container class="py-0">
+                <v-virtual-scroll class="py-2" ref="bubbleView" :height="bubbleHeight" :items="posts" v-scroll.self="onScroll">
+                    <template #="{item}">
+                        <div class="d-flex" :class="'justify-' + item.own ? 'end' : 'start'">
+                            <v-card flat max-width="70%" rounded="lg" variant="tonal" class="bg-white" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
+                                <v-card-text v-if="item.type === 'text'" class="text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
+                                <v-img v-else-if="item.type === 'picture'" width="256" class="v-card--link" :src="item.value" @click="openTab(item.value)"></v-img>
+                            </v-card>
+                        </div>
 
-                            <v-card-actions class="justify-center">
-                                <v-btn color="green" variant="flat" @click="increment()">Increment</v-btn>
-                                <v-btn color="purple" variant="flat" @click="incrementx()">IncrementX</v-btn>
-                            </v-card-actions>
+                        <v-card flat class="px-1 mb-6">
+                            <v-card-text class="pa-0" :class="'text-' + item.own ? 'end' : 'start'">{{item.time}}</v-card-text>
                         </v-card>
-                    </v-col>
-                </v-row>
+                    </template>
+                </v-virtual-scroll>
             </v-container>
-        `,
-        setup(){
-            const count = ref(0);
 
-            const notifies = inject("@layout:notify");
-            const countx = inject("@count");
+            <v-slide-y-transition>
+                <v-alert position="absolute" location="bottom" density="compact" elevation="4" variant="tonal" color="light-blue-accent-4" class="bg-white" :style="'bottom: ' + (inputHeight + 8) + 'px;'" v-model="alertNewPost">新着メッセージ</v-alert>
+            </v-slide-y-transition>
 
-            function increment(){
-                count.value++;
+            <v-footer app height="56" color="grey-lighten-2" class="justify-start align-center py-0 px-2 w-100">
+                <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="formType">
+                    <v-tooltip location="top" text="文章応答モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
+                        </template>
+                    </v-tooltip>
 
-                notifies.push({
-                    color: "green",
-                    message: "Increment!"
-                });
-            }
+                    <v-tooltip location="top" text="画像応答モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-image-outline" value="image"></v-btn>
+                        </template>
+                    </v-tooltip>
+                </v-btn-toggle>
 
-            function incrementx(){
-                countx.value++;
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" label="入力 (送信:Alt+Enter)" class="mx-2" @keyup.alt.enter.exact="requestAPI" v-model="formText"></v-textarea>
 
-                notifies.push({
-                    color: "purple",
-                    message: "IncrementX!"
-                });
-            }
-
-            return {count, countx, increment, incrementx};
-        }
-    });
-
-    const sfc_page_sub = defineComponent({
-        template: /*html*/`
-            <v-container fluid>
-                <v-row justify="center">
-                    <v-col cols>
-                        <v-card>
-                            <v-card-item>
-                                <v-card-title class="text-center">{{countx}}</v-card-title>
-                            </v-card-item>
-
-                            <v-card-actions class="justify-center">
-                                <x-reflect>
-                                    <v-btn color="orange-darken-1" variant="flat" @click="resetx()">ResetX</v-btn>
-                                    <v-btn color="teal-darken-1" variant="flat" @click="delayresetx()">DelayResetX</v-btn>
-                                </x-reflect>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                </v-row>
-            </v-container>
-        `,
-        setup(){
-            const loading = inject("@layout:loading");
-            const notifies = inject("@layout:notify");
-            const countx = inject("@count");
-
-            function resetx(){
-                countx.value = 0;
-
-                notifies.push({
-                    color: "orange-darken-1",
-                    message: "ResetX!"
-                });
-            }
-
-            async function delayresetx(){
-                loading.value = true;
-                await new Promise(done => setTimeout(done, 1000));
-                countx.value = 0;
-                loading.value = false;
-
-                notifies.push({
-                    color: "teal-darken-1",
-                    message: "ResetDelayX!"
-                });
-            }
-
-            return {countx, resetx, delayresetx};
-        }
-    });
-
-    const sfc_page_third = defineComponent({
-        template: /*html*/`
-            <v-img :height="height" class="text-center align-center text-white" gradient="45deg, #FF9F17, #FF4E0E">
-                <div v-if="mobile" class="text-h4">MOBILE</div>
-                <div v-else class="text-h2">DESKTOP</div>
-            </v-img>
+                <v-tooltip location="top" text="送信">
+                    <template #activator="{props}">
+                        <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI"></v-btn>
+                    </template>
+                </v-tooltip>
+            </v-footer>
         `,
         setup(){
             const display = useDisplay();
             const layout = useLayout();
 
-            const mobile = computed(() => display.mobile.value);
-            const height = computed(() => display.height.value - layout.mainRect.value.top - layout.mainRect.value.bottom);
+            const formText = ref("");
+            const formType = ref("chat");
+            const alertNewPost = ref(false);
+            const bubbleView = ref(null);
+            const posts = reactive([]);
 
-            return {mobile, height};
+            const notifies = inject("@layout:notify");
+
+            const bubbleHeight = computed(() => display.height.value - layout.mainRect.value.top - layout.mainRect.value.bottom);
+            const inputHeight = computed(() => layout.mainRect.value.bottom);
+
+            function stickNewPost(){
+                const {scrollHeight, scrollTop, clientHeight} = bubbleView.value._.vnode.el;
+
+                return scrollHeight - (clientHeight + scrollTop) === 0;
+            }
+
+            async function displayPost(own, type, value){
+                posts.push({
+                    time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
+                    own: own,
+                    type: type,
+                    value: value
+                });
+
+                if(stickNewPost()){
+                    await nextTick();
+                    bubbleView.value.scrollToIndex(posts.length - 1);
+                }
+                else if(!own){
+                    alertNewPost.value = true;
+                }
+            }
+
+            function onScroll(){
+                if(stickNewPost() && alertNewPost.value){
+                    alertNewPost.value = false;
+                }
+            }
+
+            async function requestAPI(){
+                const formInputValue = formText.value;
+
+                if(!formInputValue){
+                    return;
+                }
+
+                await displayPost(true, "text", formInputValue);
+
+                formText.value = "";
+
+                try{
+                    switch(formType.value){
+                        case "chat": {
+                            const {value} = await fetchAPI("/api/chat", {
+                                query: formInputValue
+                            });
+
+                            await displayPost(false, "text", value);
+                        } break;
+
+                        case "image": {
+                            const {value} = await fetchAPI("/api/image", {
+                                query: formInputValue
+                            });
+
+                            await displayPost(false, "picture", blobURL(b64Decode(value), "image/png"));
+                        } break;
+
+                        default: break;
+                    }
+                }
+                catch(e){
+                    console.error(e);
+
+                    notifies.push({
+                        color: "error",
+                        message: "送信できませんでした"
+                    });
+                }
+            }
+
+            function openTab(link){
+                window.open(link, "_blank");
+            }
+
+            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, openTab, onScroll};
         }
     });
 
@@ -272,14 +313,6 @@
             path: "/",
             name: "home",
             component: sfc_page_home
-        }, {
-            path: "/sub",
-            name: "sub",
-            component: sfc_page_sub
-        }, {
-            path: "/third",
-            name: "third",
-            component: sfc_page_third
         }, {
             path: "/:catchAll(.*)",
             name: "404",
@@ -319,7 +352,6 @@
             context.provide("@layout:navigation", ref(false));
             context.provide("@layout:loading", ref(false));
             context.provide("@layout:notify", reactive([]));
-            context.provide("@count", ref(0));
         }
     };
 
@@ -397,6 +429,6 @@
     }
 </style>
 
-<title>Application</title>
+<title>OpenAI API Example</title>
 
 <div id="vue"></div>
