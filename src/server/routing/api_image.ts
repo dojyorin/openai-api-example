@@ -1,7 +1,7 @@
-import {fetchExtend} from "../../deps.ts";
+import {Router, fetchExtend} from "../../../deps.ts";
 import {openai} from "../openai.ts";
 import {bodyJson} from "../extension/request.ts";
-import {createRouter} from "./utility.ts";
+import {type ServerState} from "../oak.ts";
 
 interface ImageRequest{
     query: string;
@@ -14,7 +14,7 @@ const pixels = <const>{
     1024: "1024x1024"
 };
 
-const router = createRouter();
+const router = new Router<ServerState>();
 
 router.post("/", async({request, response})=>{
     const input = await bodyJson<ImageRequest>(request);
