@@ -19,9 +19,11 @@
 </script>
 
 <script async type="module">
-    import {createApp, defineComponent, ref, reactive, inject, computed} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
+    import {createApp, defineComponent, ref, reactive, inject, computed, nextTick} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
     import {createRouter, createWebHashHistory, useRouter} from "https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.esm-browser.min.js";
     import {createVuetify, useDisplay, useLayout} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
+
+    import {fetchExtend, b64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.5.0/mod.universal.ts?bundle&target=esnext";
 
     async function fetchAPI(path, body){
         return await fetchExtend(path, "json", {
@@ -171,7 +173,7 @@
             <v-container class="py-0">
                 <v-virtual-scroll class="py-2" ref="bubbleView" :height="bubbleHeight" :items="posts" v-scroll.self="onScroll">
                     <template #="{item}">
-                        <div class="d-flex" :class="'justify-' + item.own ? 'end' : 'start'">
+                        <div class="d-flex" :class="'justify-' + (item.own ? 'end' : 'start')">
                             <v-card flat max-width="70%" rounded="lg" variant="tonal" class="bg-white" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
                                 <v-card-text v-if="item.type === 'text'" class="text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
                                 <v-img v-else-if="item.type === 'picture'" width="256" class="v-card--link" :src="item.value" @click="openTab(item.value)"></v-img>
@@ -179,7 +181,7 @@
                         </div>
 
                         <v-card flat class="px-1 mb-6">
-                            <v-card-text class="pa-0" :class="'text-' + item.own ? 'end' : 'start'">{{item.time}}</v-card-text>
+                            <v-card-text class="pa-0" :class="'text-' + (item.own ? 'end' : 'start')">{{item.time}}</v-card-text>
                         </v-card>
                     </template>
                 </v-virtual-scroll>
