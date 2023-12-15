@@ -1,0 +1,402 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="height=device-height,width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>🌌</text></svg>">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=M+PLUS+1+Code:wght@100;200;300;400;500;600;700">
+
+<script type="importmap">
+    {
+        "imports": {
+            "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js",
+            "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api@6/lib/esm/index.min.js"
+        }
+    }
+</script>
+
+<script async type="module">
+    import {createApp, defineComponent, ref, reactive, inject, computed} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
+    import {createRouter, createWebHashHistory, useRouter} from "https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.esm-browser.min.js";
+    import {createVuetify, useDisplay, useLayout} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
+
+    const sfc_common_reflect = defineComponent({
+        template: /*html*/`
+            <div class="x-reflect">
+                <slot></slot>
+            </div>
+        `
+    });
+
+    const sfc_layout_main_footer = defineComponent({
+        template: /*html*/`
+            <v-footer app color="black" class="justify-center align-center">Copyright</v-footer>
+        `
+    });
+
+    const sfc_layout_main_header = defineComponent({
+        template: /*html*/`
+            <v-app-bar density="compact" class="text-white">
+                <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon>
+                <v-app-bar-title class="text-h5">Application</v-app-bar-title>
+
+                <template #image>
+                    <v-img gradient="45deg, #174AFF, #0ECDFF"></v-img>
+                </template>
+            </v-app-bar>
+        `,
+        setup(){
+            const nav = inject("@layout:navigation");
+
+            return {nav};
+        }
+    });
+
+    const sfc_layout_main_loading = defineComponent({
+        template: /*html*/`
+            <v-overlay persistent no-click-animation z-index="4000" class="justify-center align-center" v-model="loading">
+                <v-progress-circular indeterminate size="60" width="4" color="primary"></v-progress-circular>
+            </v-overlay>
+        `,
+        setup(){
+            const loading = inject("@layout:loading");
+
+            return {loading};
+        }
+    });
+
+    const sfc_layout_main_navigation = defineComponent({
+        template: /*html*/`
+            <v-navigation-drawer floating temporary v-model="nav">
+                <v-toolbar density="compact" color="transparent">
+                    <v-btn icon="mdi-close" @click="nav = false"></v-btn>
+                </v-toolbar>
+
+                <v-list nav density="compact">
+                    <v-list-item v-for="{path, name} in routes" :to="path">
+                        <v-list-item-title>{{name}}</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-navigation-drawer>
+        `,
+        setup(){
+            const router = useRouter();
+
+            const nav = inject("@layout:navigation");
+
+            const routes = router.options.routes.filter(({path}) => !/:/.test(path));
+
+            return {nav, routes};
+        }
+    });
+
+    const sfc_layout_main_notify = defineComponent({
+        template: /*html*/`
+            <v-snackbar v-for="notify in notifies" model-value position="fixed" location="top" z-index="3000" :color="notify.color" timeout="-1" v-bind="notifyTimeout(notify, 5000)">
+                <div>{{notify.message}}</div>
+
+                <template #actions>
+                    <v-btn ripple density="comfortable" icon="mdi-close" @click="notifyTimeout(notify, 0)"></v-btn>
+                </template>
+            </v-snackbar>
+        `,
+        setup(){
+            const notifies = inject("@layout:notify");
+
+            async function notifyTimeout(notify, ms){
+                await new Promise(done => setTimeout(done, ms));
+
+                const i = notifies.findIndex(v => v === notify);
+
+                if(i === -1){
+                    return;
+                }
+
+                notifies.splice(i, 1);
+            }
+
+            return {notifies, notifyTimeout};
+        }
+    });
+
+    const sfc_layout_main = defineComponent({
+        template: /*html*/`
+            <v-app>
+                <x-loading></x-loading>
+                <x-notify></x-notify>
+                <x-navigation></x-navigation>
+                <x-header></x-header>
+                <v-main>
+                    <router-view></router-view>
+                </v-main>
+                <x-footer></x-footer>
+            </v-app>
+        `,
+        components: {
+            "x-header": sfc_layout_main_header,
+            "x-footer": sfc_layout_main_footer,
+            "x-loading": sfc_layout_main_loading,
+            "x-notify": sfc_layout_main_notify,
+            "x-navigation": sfc_layout_main_navigation
+        }
+    });
+
+    const sfc_page_404 = defineComponent({
+        template: /*html*/`
+            <div class="fill-height d-flex justify-center align-center text-h4">Not Found</div>
+        `
+    });
+
+    const sfc_page_home = defineComponent({
+        template: /*html*/`
+            <v-container fluid>
+                <v-row justify="center">
+                    <v-col cols>
+                        <v-card>
+                            <v-card-item>
+                                <v-card-title class="text-center">{{count}} : {{countx}}</v-card-title>
+                            </v-card-item>
+
+                            <v-card-actions class="justify-center">
+                                <v-btn color="green" variant="flat" @click="increment()">Increment</v-btn>
+                                <v-btn color="purple" variant="flat" @click="incrementx()">IncrementX</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
+        `,
+        setup(){
+            const count = ref(0);
+
+            const notifies = inject("@layout:notify");
+            const countx = inject("@count");
+
+            function increment(){
+                count.value++;
+
+                notifies.push({
+                    color: "green",
+                    message: "Increment!"
+                });
+            }
+
+            function incrementx(){
+                countx.value++;
+
+                notifies.push({
+                    color: "purple",
+                    message: "IncrementX!"
+                });
+            }
+
+            return {count, countx, increment, incrementx};
+        }
+    });
+
+    const sfc_page_sub = defineComponent({
+        template: /*html*/`
+            <v-container fluid>
+                <v-row justify="center">
+                    <v-col cols>
+                        <v-card>
+                            <v-card-item>
+                                <v-card-title class="text-center">{{countx}}</v-card-title>
+                            </v-card-item>
+
+                            <v-card-actions class="justify-center">
+                                <x-reflect>
+                                    <v-btn color="orange-darken-1" variant="flat" @click="resetx()">ResetX</v-btn>
+                                    <v-btn color="teal-darken-1" variant="flat" @click="delayresetx()">DelayResetX</v-btn>
+                                </x-reflect>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
+        `,
+        setup(){
+            const loading = inject("@layout:loading");
+            const notifies = inject("@layout:notify");
+            const countx = inject("@count");
+
+            function resetx(){
+                countx.value = 0;
+
+                notifies.push({
+                    color: "orange-darken-1",
+                    message: "ResetX!"
+                });
+            }
+
+            async function delayresetx(){
+                loading.value = true;
+                await new Promise(done => setTimeout(done, 1000));
+                countx.value = 0;
+                loading.value = false;
+
+                notifies.push({
+                    color: "teal-darken-1",
+                    message: "ResetDelayX!"
+                });
+            }
+
+            return {countx, resetx, delayresetx};
+        }
+    });
+
+    const sfc_page_third = defineComponent({
+        template: /*html*/`
+            <v-img :height="height" class="text-center align-center text-white" gradient="45deg, #FF9F17, #FF4E0E">
+                <div v-if="mobile" class="text-h4">MOBILE</div>
+                <div v-else class="text-h2">DESKTOP</div>
+            </v-img>
+        `,
+        setup(){
+            const display = useDisplay();
+            const layout = useLayout();
+
+            const mobile = computed(() => display.mobile.value);
+            const height = computed(() => display.height.value - layout.mainRect.value.top - layout.mainRect.value.bottom);
+
+            return {mobile, height};
+        }
+    });
+
+    const router = createRouter({
+        history: createWebHashHistory(),
+        routes: [{
+            path: "/",
+            name: "home",
+            component: sfc_page_home
+        }, {
+            path: "/sub",
+            name: "sub",
+            component: sfc_page_sub
+        }, {
+            path: "/third",
+            name: "third",
+            component: sfc_page_third
+        }, {
+            path: "/:catchAll(.*)",
+            name: "404",
+            component: sfc_page_404
+        }]
+    });
+
+    const vuetify = createVuetify({
+        theme: {
+            defaultTheme: "main",
+            themes: {
+                "main": {
+                    dark: false,
+                    colors: {
+                        primary: "#03A9F4",
+                        secondary: "#9C27B0",
+                        surface: "#FFFFFF",
+                        background: "#FFFFFF",
+                        info: "#2196F3",
+                        success: "#4CAF50",
+                        warning: "#FFC107",
+                        error: "#FF5252"
+                    }
+                }
+            }
+        }
+    });
+
+    const component = {
+        install(context){
+            context.component("x-reflect", sfc_common_reflect);
+        }
+    };
+
+    const provide = {
+        install(context){
+            context.provide("@layout:navigation", ref(false));
+            context.provide("@layout:loading", ref(false));
+            context.provide("@layout:notify", reactive([]));
+            context.provide("@count", ref(0));
+        }
+    };
+
+    const vue = createApp(sfc_layout_main);
+
+    vue.use(router);
+    vue.use(vuetify);
+    vue.use(component);
+    vue.use(provide);
+
+    vue.mount("#vue");
+</script>
+
+<style>
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    :focus {
+        outline: none !important;
+    }
+
+    * {
+        font-family: "M PLUS 1 Code" !important;
+    }
+
+    .v-btn {
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        text-indent: 0 !important;
+    }
+</style>
+
+<style>
+    @keyframes x-reflect-animation {
+        0% {
+            transform: scale(0) rotate(45deg);
+            opacity: 0;
+        }
+
+        75% {
+            transform: scale(0) rotate(45deg);
+            opacity: 0.5;
+        }
+
+        80% {
+            transform: scale(4) rotate(45deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(50) rotate(45deg);
+            opacity: 0;
+        }
+    }
+
+    .x-reflect {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .x-reflect::after {
+        pointer-events: none;
+        content: "";
+        position: absolute;
+        display: block;
+        top: -180px;
+        left: 0;
+        height: 100%;
+        width: 30px;
+        opacity: 0;
+        background-color: #FFFFFF;
+        transform: rotate(45deg);
+        animation: x-reflect-animation 5s ease-in-out infinite;
+    }
+</style>
+
+<title>Application</title>
+
+<div id="vue"></div>
