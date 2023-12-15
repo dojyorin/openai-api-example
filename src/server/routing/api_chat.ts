@@ -1,7 +1,6 @@
-import {Router} from "../../../deps.ts";
-import {openai} from "../openai.ts";
-import {bodyJson} from "../extension/request.ts";
-import {type ServerState} from "../oak.ts";
+import {OpenAI, Router, createHttpError} from "../../../deps.ts";
+import {oai} from "../../backend/openai.ts";
+import {bodyJson} from "../extension/mod.ts";
 
 interface ChatRequest{
     query: string;
@@ -9,17 +8,16 @@ interface ChatRequest{
     background: string;
 }
 
-const router = new Router<ServerState>();
+const router = new Router();
 
 router.post("/", async({request, response})=>{
     const input = await bodyJson<ChatRequest>(request);
 
     if(!input.query){
-        response.status = 415;
-        return;
+        throw createHttpError(415);
     }
 
-    const params:Parameters<typeof openai.createChatCompletion>[0]["messages"] = [{
+    const params:OpenAI.ChatCompletionMessageParam[] = [{
         role: "user",
         content: input.query
     }];
@@ -38,7 +36,7 @@ router.post("/", async({request, response})=>{
         });
     }
 
-    const {choices} = await openai.createChatCompletion({
+    const {choices} = await oai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: params
     });

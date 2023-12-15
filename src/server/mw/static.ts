@@ -9,7 +9,8 @@ export function sendStatic():Middleware{
                 format: false
             });
         }
-        catch{
+        catch(e){
+            console.error(e);
             await next();
         }
     };

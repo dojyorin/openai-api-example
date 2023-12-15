@@ -1,7 +1,6 @@
-import {Router, fetchExtend} from "../../../deps.ts";
-import {openai} from "../openai.ts";
-import {bodyJson} from "../extension/request.ts";
-import {type ServerState} from "../oak.ts";
+import {Router, createHttpError, fetchExtend} from "../../../deps.ts";
+import {oai} from "../../backend/openai.ts";
+import {bodyJson} from "../extension/mod.ts";
 
 interface ImageRequest{
     query: string;
@@ -14,17 +13,16 @@ const pixels = <const>{
     1024: "1024x1024"
 };
 
-const router = new Router<ServerState>();
+const router = new Router();
 
 router.post("/", async({request, response})=>{
     const input = await bodyJson<ImageRequest>(request);
 
     if(!input.query){
-        response.status = 415;
-        return;
+        throw createHttpError(415);
     }
 
-    const {data} = await openai.createImage({
+    const {data} = await oai.images.generate({
         prompt: input.query,
         size: input.size && pixels[input.size],
         n: 1
@@ -33,16 +31,13 @@ router.post("/", async({request, response})=>{
     const resource = data[0]?.url;
 
     if(!resource){
-        response.status = 415;
-        return;
+        throw createHttpError(415);
     }
 
-    const {href, searchParams} = new URL(resource);
+    const {href} = new URL(resource);
 
     response.body = {
-        value: await fetchExtend(href, "base64", {
-            query: searchParams
-        })
+        value: await fetchExtend(href, "base64")
     };
 });
 

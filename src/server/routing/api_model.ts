@@ -1,11 +1,10 @@
 import {Router} from "../../../deps.ts";
-import {openai} from "../openai.ts";
-import {type ServerState} from "../oak.ts";
+import {oai} from "../../backend/openai.ts";
 
-const router = new Router<ServerState>();
+const router = new Router();
 
 router.get("/", async({response})=>{
-    const {data} = await openai.listModels();
+    const {data} = await oai.models.list();
 
     response.body = {
         value: data
