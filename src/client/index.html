@@ -25,22 +25,6 @@
 
     import {fetchExtend, b64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.5.0/mod.universal.ts?bundle&target=esnext";
 
-    async function fetchAPI(path, body){
-        return await fetchExtend(path, "json", {
-            method: body ? "POST" : "GET",
-            body: body && JSON.stringify(body),
-            headers: {
-                ...body && {
-                    "Content-Type": "application/json"
-                }
-            }
-        });
-    }
-
-    function blobURL(data, mime){
-        return URL.createObjectURL(new Blob([data], {type: mime}));
-    }
-
     const sfc_common_reflect = defineComponent({
         template: /*html*/`
             <div class="x-reflect">
@@ -273,19 +257,32 @@
                 try{
                     switch(formType.value){
                         case "chat": {
-                            const {value} = await fetchAPI("/api/chat", {
-                                query: formInputValue
+                            const {value} = await fetchExtend("/api/chat", "json", {
+                                method: "POST",
+                                headers: new Headers({
+                                    "Content-Type": "application/json"
+                                }),
+                                body: JSON.stringify({
+                                    query: formInputValue
+                                })
                             });
 
                             await displayPost(false, "text", value);
                         } break;
 
                         case "image": {
-                            const {value} = await fetchAPI("/api/image", {
-                                query: formInputValue
+                            const {value} = await fetchExtend("/api/image", "json", {
+                                method: "POST",
+
+                                headers: new Headers({
+                                    "Content-Type": "application/json"
+                                }),
+                                body: JSON.stringify({
+                                    query: formInputValue
+                                })
                             });
 
-                            await displayPost(false, "picture", blobURL(b64Decode(value), "image/png"));
+                            await displayPost(false, "picture", URL.createObjectURL(new Blob([b64Decode(value)], {type: "image/png"})));
                         } break;
 
                         default: break;
