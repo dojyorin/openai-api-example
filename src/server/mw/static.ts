@@ -1,16 +1,16 @@
-import {mainPath} from "../../deps.ts";
-import {type MW} from "./utility.ts";
+import {type Middleware, mainPath} from "../../../deps.ts";
 
-export function sendStatic():MW{
+export function sendStatic():Middleware{
     return async(context, next)=>{
         try{
             await context.send({
-                root: `${mainPath()}/src/www`,
+                root: `${mainPath()}/src/client`,
                 index: "index.html",
                 format: false
             });
         }
-        catch{
+        catch(e){
+            console.error(e);
             await next();
         }
     };

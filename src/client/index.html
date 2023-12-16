@@ -1,0 +1,433 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="height=device-height,width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' style='dominant-baseline:central;text-anchor:middle;font-size:100px;'>🧠</text></svg>">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=M+PLUS+1+Code:wght@100;200;300;400;500;600;700">
+
+<script type="importmap">
+    {
+        "imports": {
+            "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js",
+            "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api@6/lib/esm/index.min.js"
+        }
+    }
+</script>
+
+<script async type="module">
+    import {createApp, defineComponent, ref, reactive, inject, computed, nextTick} from "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.prod.min.js";
+    import {createRouter, createWebHashHistory, useRouter} from "https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.esm-browser.min.js";
+    import {createVuetify, useDisplay, useLayout} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
+
+    import {fetchExtend, b64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.5.0/mod.universal.ts?bundle&target=esnext";
+
+    const sfc_common_reflect = defineComponent({
+        template: /*html*/`
+            <div class="x-reflect">
+                <slot></slot>
+            </div>
+        `
+    });
+
+    const sfc_layout_main_footer = defineComponent({
+        template: /*html*/`
+            <v-footer app color="black" class="justify-center align-center">Copyright</v-footer>
+        `
+    });
+
+    const sfc_layout_main_header = defineComponent({
+        template: /*html*/`
+            <v-app-bar density="compact" class="text-white">
+                <!-- <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon> -->
+                <v-app-bar-title class="text-h5">OpenAI API Example</v-app-bar-title>
+
+                <template #image>
+                    <v-img gradient="45deg, #E4980D, #A244E2"></v-img>
+                </template>
+            </v-app-bar>
+        `,
+        setup(){
+            const nav = inject("@layout:navigation");
+
+            return {nav};
+        }
+    });
+
+    const sfc_layout_main_loading = defineComponent({
+        template: /*html*/`
+            <v-overlay persistent no-click-animation z-index="4000" class="justify-center align-center" v-model="loading">
+                <v-progress-circular indeterminate size="60" width="4" color="primary"></v-progress-circular>
+            </v-overlay>
+        `,
+        setup(){
+            const loading = inject("@layout:loading");
+
+            return {loading};
+        }
+    });
+
+    const sfc_layout_main_navigation = defineComponent({
+        template: /*html*/`
+            <v-navigation-drawer floating temporary v-model="nav">
+                <v-toolbar density="compact" color="transparent">
+                    <v-btn icon="mdi-close" @click="nav = false"></v-btn>
+                </v-toolbar>
+
+                <v-list nav density="compact">
+                    <v-list-item v-for="{path, name} in routes" :to="path">
+                        <v-list-item-title>{{name}}</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+            </v-navigation-drawer>
+        `,
+        setup(){
+            const router = useRouter();
+
+            const nav = inject("@layout:navigation");
+
+            const routes = router.options.routes.filter(({path}) => !/:/.test(path));
+
+            return {nav, routes};
+        }
+    });
+
+    const sfc_layout_main_notify = defineComponent({
+        template: /*html*/`
+            <v-snackbar v-for="notify in notifies" model-value position="fixed" location="top" z-index="3000" :color="notify.color" timeout="-1" v-bind="notifyTimeout(notify, 5000)">
+                <div>{{notify.message}}</div>
+
+                <template #actions>
+                    <v-btn ripple density="comfortable" icon="mdi-close" @click="notifyTimeout(notify, 0)"></v-btn>
+                </template>
+            </v-snackbar>
+        `,
+        setup(){
+            const notifies = inject("@layout:notify");
+
+            async function notifyTimeout(notify, ms){
+                await new Promise(done => setTimeout(done, ms));
+
+                const i = notifies.findIndex(v => v === notify);
+
+                if(i === -1){
+                    return;
+                }
+
+                notifies.splice(i, 1);
+            }
+
+            return {notifies, notifyTimeout};
+        }
+    });
+
+    const sfc_layout_main = defineComponent({
+        template: /*html*/`
+            <v-app>
+                <x-loading></x-loading>
+                <x-notify></x-notify>
+                <!-- <x-navigation></x-navigation> -->
+                <x-header></x-header>
+                <v-main>
+                    <router-view></router-view>
+                </v-main>
+                <!-- <x-footer></x-footer> -->
+            </v-app>
+        `,
+        components: {
+            "x-header": sfc_layout_main_header,
+            "x-footer": sfc_layout_main_footer,
+            "x-loading": sfc_layout_main_loading,
+            "x-notify": sfc_layout_main_notify,
+            "x-navigation": sfc_layout_main_navigation
+        }
+    });
+
+    const sfc_page_404 = defineComponent({
+        template: /*html*/`
+            <div class="fill-height d-flex justify-center align-center text-h4">Not Found</div>
+        `
+    });
+
+    const sfc_page_home = defineComponent({
+        template: /*html*/`
+            <v-container class="py-0">
+                <v-virtual-scroll class="py-2" ref="bubbleView" :height="bubbleHeight" :items="posts" v-scroll.self="onScroll">
+                    <template #="{item}">
+                        <div class="d-flex" :class="'justify-' + (item.own ? 'end' : 'start')">
+                            <v-card flat max-width="70%" rounded="lg" variant="tonal" class="bg-white" :color="item.own ? 'deep-purple-accent-4' : 'orange-darken-4'">
+                                <v-card-text v-if="item.type === 'text'" class="text-body-1 text-pre-wrap">{{item.value}}</v-card-text>
+                                <v-img v-else-if="item.type === 'picture'" width="256" class="v-card--link" :src="item.value" @click="openTab(item.value)"></v-img>
+                            </v-card>
+                        </div>
+
+                        <v-card flat class="px-1 mb-6">
+                            <v-card-text class="pa-0" :class="'text-' + (item.own ? 'end' : 'start')">{{item.time}}</v-card-text>
+                        </v-card>
+                    </template>
+                </v-virtual-scroll>
+            </v-container>
+
+            <v-slide-y-transition>
+                <v-alert position="absolute" location="bottom" density="compact" elevation="4" variant="tonal" color="light-blue-accent-4" class="bg-white" :style="'bottom: ' + (inputHeight + 8) + 'px;'" v-model="alertNewPost">新着メッセージ</v-alert>
+            </v-slide-y-transition>
+
+            <v-footer app height="56" color="grey-lighten-2" class="justify-start align-center py-0 px-2 w-100">
+                <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="formType">
+                    <v-tooltip location="top" text="文章応答モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
+                        </template>
+                    </v-tooltip>
+
+                    <v-tooltip location="top" text="画像応答モード">
+                        <template #activator="{props}">
+                            <v-btn :="props" icon="mdi-image-outline" value="image"></v-btn>
+                        </template>
+                    </v-tooltip>
+                </v-btn-toggle>
+
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" label="入力 (送信:Alt+Enter)" class="mx-2" @keyup.alt.enter.exact="requestAPI" v-model="formText"></v-textarea>
+
+                <v-tooltip location="top" text="送信">
+                    <template #activator="{props}">
+                        <v-btn :="props" flat density="comfortable" color="transparent" icon="mdi-send" @click="requestAPI"></v-btn>
+                    </template>
+                </v-tooltip>
+            </v-footer>
+        `,
+        setup(){
+            const display = useDisplay();
+            const layout = useLayout();
+
+            const formText = ref("");
+            const formType = ref("chat");
+            const alertNewPost = ref(false);
+            const bubbleView = ref(null);
+            const posts = reactive([]);
+
+            const notifies = inject("@layout:notify");
+
+            const bubbleHeight = computed(() => display.height.value - layout.mainRect.value.top - layout.mainRect.value.bottom);
+            const inputHeight = computed(() => layout.mainRect.value.bottom);
+
+            function stickNewPost(){
+                const {scrollHeight, scrollTop, clientHeight} = bubbleView.value._.vnode.el;
+
+                return scrollHeight - (clientHeight + scrollTop) === 0;
+            }
+
+            async function displayPost(own, type, value){
+                posts.push({
+                    time: new Date().toLocaleString().replace(/:\d{2}$/, ""),
+                    own: own,
+                    type: type,
+                    value: value
+                });
+
+                if(stickNewPost()){
+                    await nextTick();
+                    bubbleView.value.scrollToIndex(posts.length - 1);
+                }
+                else if(!own){
+                    alertNewPost.value = true;
+                }
+            }
+
+            function onScroll(){
+                if(stickNewPost() && alertNewPost.value){
+                    alertNewPost.value = false;
+                }
+            }
+
+            async function requestAPI(){
+                const formInputValue = formText.value;
+
+                if(!formInputValue){
+                    return;
+                }
+
+                await displayPost(true, "text", formInputValue);
+
+                formText.value = "";
+
+                try{
+                    switch(formType.value){
+                        case "chat": {
+                            const {value} = await fetchExtend("/api/chat", "json", {
+                                method: "POST",
+                                headers: new Headers({
+                                    "Content-Type": "application/json"
+                                }),
+                                body: JSON.stringify({
+                                    query: formInputValue
+                                })
+                            });
+
+                            await displayPost(false, "text", value);
+                        } break;
+
+                        case "image": {
+                            const {value} = await fetchExtend("/api/image", "json", {
+                                method: "POST",
+
+                                headers: new Headers({
+                                    "Content-Type": "application/json"
+                                }),
+                                body: JSON.stringify({
+                                    query: formInputValue
+                                })
+                            });
+
+                            await displayPost(false, "picture", URL.createObjectURL(new Blob([b64Decode(value)], {type: "image/png"})));
+                        } break;
+
+                        default: break;
+                    }
+                }
+                catch(e){
+                    console.error(e);
+
+                    notifies.push({
+                        color: "error",
+                        message: "送信できませんでした"
+                    });
+                }
+            }
+
+            function openTab(link){
+                window.open(link, "_blank");
+            }
+
+            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, openTab, onScroll};
+        }
+    });
+
+    const router = createRouter({
+        history: createWebHashHistory(),
+        routes: [{
+            path: "/",
+            name: "home",
+            component: sfc_page_home
+        }, {
+            path: "/:catchAll(.*)",
+            name: "404",
+            component: sfc_page_404
+        }]
+    });
+
+    const vuetify = createVuetify({
+        theme: {
+            defaultTheme: "main",
+            themes: {
+                "main": {
+                    dark: false,
+                    colors: {
+                        primary: "#03A9F4",
+                        secondary: "#9C27B0",
+                        surface: "#FFFFFF",
+                        background: "#FFFFFF",
+                        info: "#2196F3",
+                        success: "#4CAF50",
+                        warning: "#FFC107",
+                        error: "#FF5252"
+                    }
+                }
+            }
+        }
+    });
+
+    const component = {
+        install(context){
+            context.component("x-reflect", sfc_common_reflect);
+        }
+    };
+
+    const provide = {
+        install(context){
+            context.provide("@layout:navigation", ref(false));
+            context.provide("@layout:loading", ref(false));
+            context.provide("@layout:notify", reactive([]));
+        }
+    };
+
+    const vue = createApp(sfc_layout_main);
+
+    vue.use(router);
+    vue.use(vuetify);
+    vue.use(component);
+    vue.use(provide);
+
+    vue.mount("#vue");
+</script>
+
+<style>
+    ::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    :focus {
+        outline: none !important;
+    }
+
+    * {
+        font-family: "M PLUS 1 Code" !important;
+    }
+
+    .v-btn {
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        text-indent: 0 !important;
+    }
+</style>
+
+<style>
+    @keyframes x-reflect-animation {
+        0% {
+            transform: scale(0) rotate(45deg);
+            opacity: 0;
+        }
+
+        75% {
+            transform: scale(0) rotate(45deg);
+            opacity: 0.5;
+        }
+
+        80% {
+            transform: scale(4) rotate(45deg);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(50) rotate(45deg);
+            opacity: 0;
+        }
+    }
+
+    .x-reflect {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .x-reflect::after {
+        pointer-events: none;
+        content: "";
+        position: absolute;
+        display: block;
+        top: -180px;
+        left: 0;
+        height: 100%;
+        width: 30px;
+        opacity: 0;
+        background-color: #FFFFFF;
+        transform: rotate(45deg);
+        animation: x-reflect-animation 5s ease-in-out infinite;
+    }
+</style>
+
+<title>OpenAI API Example</title>
+
+<div id="vue"></div>
