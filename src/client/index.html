@@ -43,7 +43,7 @@
         template: /*html*/`
             <v-app-bar density="compact" class="text-white">
                 <!-- <v-app-bar-nav-icon @click="nav = !nav"></v-app-bar-nav-icon> -->
-                <v-app-bar-title class="text-h5">OpenAI API Example</v-app-bar-title>
+                <v-app-bar-title class="text-h5 text-center">OpenAI API Example</v-app-bar-title>
 
                 <template #image>
                     <v-img gradient="45deg, #E4980D, #A244E2"></v-img>
@@ -176,7 +176,7 @@
             </v-slide-y-transition>
 
             <v-footer app height="56" color="grey-lighten-2" class="justify-start align-center py-0 px-2 w-100">
-                <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="formType">
+                <v-btn-toggle v-if="!focus" mandatory density="comfortable" color="primary" v-model="inputType">
                     <v-tooltip location="top" text="文章応答モード">
                         <template #activator="{props}">
                             <v-btn :="props" icon="mdi-message-text-outline" value="chat"></v-btn>
@@ -190,7 +190,7 @@
                     </v-tooltip>
                 </v-btn-toggle>
 
-                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" label="入力 (送信:Alt+Enter)" class="mx-2" @keyup.alt.enter.exact="requestAPI" v-model="formText"></v-textarea>
+                <v-textarea no-resize hide-details single-line flat clearable density="compact" variant="solo" rows="1" label="入力 (送信:Alt+Enter)" class="mx-2" @keyup.alt.enter.exact="requestAPI" v-model="inputText"></v-textarea>
 
                 <v-tooltip location="top" text="送信">
                     <template #activator="{props}">
@@ -203,8 +203,8 @@
             const display = useDisplay();
             const layout = useLayout();
 
-            const formText = ref("");
-            const formType = ref("chat");
+            const inputText = ref("");
+            const inputType = ref("chat");
             const alertNewPost = ref(false);
             const bubbleView = ref(null);
             const posts = reactive([]);
@@ -244,7 +244,7 @@
             }
 
             async function requestAPI(){
-                const formInputValue = formText.value;
+                const formInputValue = inputText.value;
 
                 if(!formInputValue){
                     return;
@@ -252,10 +252,10 @@
 
                 await displayPost(true, "text", formInputValue);
 
-                formText.value = "";
+                inputText.value = "";
 
                 try{
-                    switch(formType.value){
+                    switch(inputType.value){
                         case "chat": {
                             const {value} = await fetchExtend("/api/chat", "json", {
                                 method: "POST",
@@ -302,7 +302,7 @@
                 window.open(link, "_blank");
             }
 
-            return {formText, formType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, openTab, onScroll};
+            return {inputText, inputType, posts, bubbleView, alertNewPost, bubbleHeight, inputHeight, requestAPI, openTab, onScroll};
         }
     });
 
