@@ -23,7 +23,7 @@
     import {createRouter, createWebHashHistory, useRouter} from "https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.esm-browser.min.js";
     import {createVuetify, useDisplay, useLayout} from "https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.esm.min.js";
 
-    import {fetchExtend, b64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.5.0/mod.universal.ts?bundle&target=esnext";
+    import {fetchExtend, b64Decode} from "https://esm.sh/gh/dojyorin/deno_simple_utility@v1.5.2/mod.universal.ts?bundle&target=esnext";
 
     const sfc_common_reflect = defineComponent({
         template: /*html*/`
@@ -138,11 +138,11 @@
             </v-app>
         `,
         components: {
-            "x-header": sfc_layout_main_header,
-            "x-footer": sfc_layout_main_footer,
-            "x-loading": sfc_layout_main_loading,
-            "x-notify": sfc_layout_main_notify,
-            "x-navigation": sfc_layout_main_navigation
+            "x-loading": defineAsyncComponent(sfc_layout_main_loading),
+            "x-notify": defineAsyncComponent(sfc_layout_main_notify),
+            // "x-navigation": defineAsyncComponent(sfc_layout_main_navigation),
+            "x-header": defineAsyncComponent(sfc_layout_main_header),
+            // "x-footer": defineAsyncComponent(sfc_layout_main_footer)
         }
     });
 
